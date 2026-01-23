@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { getAllRecipes } from '@/lib/dynamodb';
 import RecipeList from '../components/RecipeList';
+import { Recipe } from '@/lib/types';
 
 export default async function RecipesPage() {
-  let recipes;
+  let recipes: Recipe[] = [];
   let error = null;
 
   try {
