@@ -29,6 +29,9 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
             {recipe.category && (
               <Badge variant="outline">{recipe.category}</Badge>
             )}
+            {recipe.cuisine && (
+              <Badge variant="outline">{recipe.cuisine}</Badge>
+            )}
           </div>
 
           <div className="flex gap-4 text-sm text-muted-foreground">

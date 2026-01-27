@@ -23,6 +23,7 @@ interface RecipeFormProps {
     servings?: number;
     category?: string;
     difficulty?: 'Easy' | 'Medium' | 'Hard';
+    cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
     tags?: string[];
   };
 }
@@ -48,6 +49,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [category, setCategory] = useState(initialRecipe?.category || '');
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | ''>(
     initialRecipe?.difficulty || ''
+  );
+  const [cuisine, setCuisine] = useState<'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other' | ''>(
+    initialRecipe?.cuisine || ''
   );
   const [tags, setTags] = useState(
     initialRecipe?.tags ? initialRecipe.tags.join(', ') : ''
@@ -102,6 +106,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         servings: servings || undefined,
         category: category || undefined,
         difficulty: difficulty || undefined,
+        cuisine: cuisine || undefined,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t) : undefined,
       };
 
@@ -295,14 +300,38 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="category">Category</Label>
-        <Input
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="e.g., Dessert, Main Course, Appetizer"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="cuisine">Cuisine</Label>
+          <Select
+            value={cuisine}
+            onValueChange={(value) => setCuisine(value as 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other' | '')}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select cuisine" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="American">American</SelectItem>
+              <SelectItem value="Indian">Indian</SelectItem>
+              <SelectItem value="Thai">Thai</SelectItem>
+              <SelectItem value="Italian">Italian</SelectItem>
+              <SelectItem value="Chinese">Chinese</SelectItem>
+              <SelectItem value="Korean">Korean</SelectItem>
+              <SelectItem value="Mexican">Mexican</SelectItem>
+              <SelectItem value="Other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Input
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="e.g., Dessert, Main Course, Appetizer"
+          />
+        </div>
       </div>
 
       <div className="space-y-2">

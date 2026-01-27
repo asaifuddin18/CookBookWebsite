@@ -26,6 +26,7 @@ export default async function EditRecipePage({
     servings: recipe.servings,
     category: recipe.category,
     difficulty: recipe.difficulty,
+    cuisine: recipe.cuisine,
     tags: recipe.tags,
   };
 

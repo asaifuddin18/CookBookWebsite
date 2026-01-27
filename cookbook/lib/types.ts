@@ -16,6 +16,7 @@ export interface Recipe {
   servings?: number;
   category?: string;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
+  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
   tags?: string[];
   createdAt: string;
   updatedAt: string;

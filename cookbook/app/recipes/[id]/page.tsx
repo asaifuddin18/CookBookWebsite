@@ -49,6 +49,9 @@ export default async function RecipeDetailPage({
             {recipe.category && (
               <Badge variant="outline">{recipe.category}</Badge>
             )}
+            {recipe.cuisine && (
+              <Badge variant="outline">{recipe.cuisine}</Badge>
+            )}
           </div>
 
           {recipe.description && (

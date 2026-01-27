@@ -17,6 +17,7 @@ export const recipeSchema = z.object({
   servings: z.number().min(1, 'Servings must be at least 1').optional(),
   category: z.string().optional(),
   difficulty: z.enum(['Easy', 'Medium', 'Hard']).optional(),
+  cuisine: z.enum(['American', 'Indian', 'Thai', 'Italian', 'Chinese', 'Korean', 'Mexican', 'Other']).optional(),
   tags: z.array(z.string()).optional(),
 });
 
