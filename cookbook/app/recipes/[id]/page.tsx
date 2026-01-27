@@ -19,12 +19,21 @@ export default async function RecipeDetailPage({
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <Link
-          href="/recipes"
-          className="text-blue-600 dark:text-blue-400 hover:underline mb-6 inline-block"
-        >
-          ← Back to Recipes
-        </Link>
+        <div className="flex justify-between items-center mb-6">
+          <Link
+            href="/recipes"
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            ← Back to Recipes
+          </Link>
+
+          <Link
+            href={`/recipes/${recipe.recipeId}/edit`}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
+          >
+            Edit Recipe
+          </Link>
+        </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">

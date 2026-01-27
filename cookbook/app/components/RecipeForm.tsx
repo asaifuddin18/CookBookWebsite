@@ -4,24 +4,48 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ingredient } from '@/lib/types';
 
-export default function RecipeForm() {
+interface RecipeFormProps {
+  recipeId?: string;
+  initialRecipe?: {
+    title: string;
+    description?: string;
+    author: string;
+    ingredients: Ingredient[];
+    instructions: string[];
+    prepTime?: number;
+    cookTime?: number;
+    servings?: number;
+    category?: string;
+    difficulty?: 'Easy' | 'Medium' | 'Hard';
+    tags?: string[];
+  };
+}
+
+export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps = {}) {
   const router = useRouter();
+  const isEditMode = !!recipeId;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [author, setAuthor] = useState('');
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { name: '', quantity: '', unit: '' }
-  ]);
-  const [instructions, setInstructions] = useState<string[]>(['']);
-  const [prepTime, setPrepTime] = useState<number | ''>('');
-  const [cookTime, setCookTime] = useState<number | ''>('');
-  const [servings, setServings] = useState<number | ''>('');
-  const [category, setCategory] = useState('');
-  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | ''>('');
-  const [tags, setTags] = useState('');
+  const [title, setTitle] = useState(initialRecipe?.title || '');
+  const [description, setDescription] = useState(initialRecipe?.description || '');
+  const [author, setAuthor] = useState(initialRecipe?.author || '');
+  const [ingredients, setIngredients] = useState<Ingredient[]>(
+    initialRecipe?.ingredients || [{ name: '', quantity: '', unit: '' }]
+  );
+  const [instructions, setInstructions] = useState<string[]>(
+    initialRecipe?.instructions || ['']
+  );
+  const [prepTime, setPrepTime] = useState<number | ''>(initialRecipe?.prepTime || '');
+  const [cookTime, setCookTime] = useState<number | ''>(initialRecipe?.cookTime || '');
+  const [servings, setServings] = useState<number | ''>(initialRecipe?.servings || '');
+  const [category, setCategory] = useState(initialRecipe?.category || '');
+  const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | ''>(
+    initialRecipe?.difficulty || ''
+  );
+  const [tags, setTags] = useState(
+    initialRecipe?.tags ? initialRecipe.tags.join(', ') : ''
+  );
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -75,8 +99,11 @@ export default function RecipeForm() {
         tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t) : undefined,
       };
 
-      const response = await fetch('/api/recipes', {
-        method: 'POST',
+      const url = isEditMode ? `/api/recipes/${recipeId}` : '/api/recipes';
+      const method = isEditMode ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -85,10 +112,11 @@ export default function RecipeForm() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create recipe');
+        throw new Error(errorData.error || `Failed to ${isEditMode ? 'update' : 'create'} recipe`);
       }
 
-      router.push('/recipes');
+      const redirectPath = isEditMode ? `/recipes/${recipeId}` : '/recipes';
+      router.push(redirectPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -316,7 +344,10 @@ export default function RecipeForm() {
         disabled={loading}
         className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
       >
-        {loading ? 'Creating Recipe...' : 'Create Recipe'}
+        {loading
+          ? (isEditMode ? 'Updating Recipe...' : 'Creating Recipe...')
+          : (isEditMode ? 'Update Recipe' : 'Create Recipe')
+        }
       </button>
     </form>
   );
