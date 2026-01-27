@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from './ThemeToggle';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,16 +36,19 @@ export default function Navbar() {
             </div>
           </div>
 
-          <form onSubmit={handleSearch} className="flex items-center gap-2">
-            <Input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search recipes..."
-              className="w-48 sm:w-64"
-            />
-            <Button type="submit">Search</Button>
-          </form>
+          <div className="flex items-center gap-2">
+            <form onSubmit={handleSearch} className="flex items-center gap-2">
+              <Input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search recipes..."
+                className="w-48 sm:w-64"
+              />
+              <Button type="submit">Search</Button>
+            </form>
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Mobile menu */}
