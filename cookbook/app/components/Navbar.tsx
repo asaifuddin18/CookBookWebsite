@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,52 +26,35 @@ export default function Navbar() {
               Cookbook
             </Link>
             <div className="hidden md:flex gap-4">
-              <Link
-                href="/recipes"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
-              >
-                View Recipes
-              </Link>
-              <Link
-                href="/recipes/new"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-              >
-                Add Recipe
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link href="/recipes">View Recipes</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/recipes/new">Add Recipe</Link>
+              </Button>
             </div>
           </div>
 
-          <form onSubmit={handleSearch} className="flex items-center">
-            <input
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search recipes..."
-              className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white w-48 sm:w-64"
+              className="w-48 sm:w-64"
             />
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Search
-            </button>
+            <Button type="submit">Search</Button>
           </form>
         </div>
 
         {/* Mobile menu */}
         <div className="md:hidden flex gap-2 pb-3">
-          <Link
-            href="/recipes"
-            className="flex-1 px-4 py-2 text-center text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors border border-gray-300 dark:border-gray-700 rounded-lg"
-          >
-            View Recipes
-          </Link>
-          <Link
-            href="/recipes/new"
-            className="flex-1 px-4 py-2 text-center bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-          >
-            Add Recipe
-          </Link>
+          <Button variant="outline" className="flex-1" asChild>
+            <Link href="/recipes">View Recipes</Link>
+          </Button>
+          <Button className="flex-1" asChild>
+            <Link href="/recipes/new">Add Recipe</Link>
+          </Button>
         </div>
       </div>
     </nav>

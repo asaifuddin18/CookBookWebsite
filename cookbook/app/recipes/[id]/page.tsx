@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default async function RecipeDetailPage({
   params,
@@ -27,12 +29,9 @@ export default async function RecipeDetailPage({
             ← Back to Recipes
           </Link>
 
-          <Link
-            href={`/recipes/${recipe.recipeId}/edit`}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors"
-          >
-            Edit Recipe
-          </Link>
+          <Button asChild>
+            <Link href={`/recipes/${recipe.recipeId}/edit`}>Edit Recipe</Link>
+          </Button>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
@@ -45,14 +44,10 @@ export default async function RecipeDetailPage({
               by <span className="font-semibold">{recipe.author}</span>
             </p>
             {recipe.difficulty && (
-              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full">
-                {recipe.difficulty}
-              </span>
+              <Badge variant="secondary">{recipe.difficulty}</Badge>
             )}
             {recipe.category && (
-              <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full">
-                {recipe.category}
-              </span>
+              <Badge variant="outline">{recipe.category}</Badge>
             )}
           </div>
 
@@ -143,12 +138,7 @@ export default async function RecipeDetailPage({
               </h3>
               <div className="flex flex-wrap gap-2">
                 {recipe.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm rounded-full"
-                  >
-                    {tag}
-                  </span>
+                  <Badge key={index} variant="secondary">{tag}</Badge>
                 ))}
               </div>
             </div>

@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ingredient } from '@/lib/types';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RecipeFormProps {
   recipeId?: string;
@@ -127,228 +133,198 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      <div>
-        <label htmlFor="title" className="block text-sm font-medium mb-2">
-          Recipe Title *
-        </label>
-        <input
-          type="text"
+      <div className="space-y-2">
+        <Label htmlFor="title">Recipe Title *</Label>
+        <Input
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="e.g., Chocolate Chip Cookies"
         />
       </div>
 
-      <div>
-        <label htmlFor="author" className="block text-sm font-medium mb-2">
-          Author *
-        </label>
-        <input
-          type="text"
+      <div className="space-y-2">
+        <Label htmlFor="author">Author *</Label>
+        <Input
           id="author"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           required
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Your name"
         />
       </div>
 
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium mb-2">
-          Description
-        </label>
-        <textarea
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Brief description of your recipe"
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Ingredients *</label>
+      <div className="space-y-2">
+        <Label>Ingredients *</Label>
         {ingredients.map((ingredient, index) => (
-          <div key={index} className="flex gap-2 mb-2">
-            <input
-              type="text"
+          <div key={index} className="flex gap-2">
+            <Input
               value={ingredient.name}
               onChange={(e) => updateIngredient(index, 'name', e.target.value)}
               placeholder="Ingredient name"
-              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1"
             />
-            <input
-              type="text"
+            <Input
               value={ingredient.quantity}
               onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
               placeholder="Quantity"
-              className="w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-24"
             />
-            <input
-              type="text"
+            <Input
               value={ingredient.unit || ''}
               onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
               placeholder="Unit"
-              className="w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-24"
             />
-            <button
+            <Button
               type="button"
               onClick={() => removeIngredient(index)}
-              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              variant="destructive"
+              size="sm"
             >
               Remove
-            </button>
+            </Button>
           </div>
         ))}
-        <button
+        <Button
           type="button"
           onClick={addIngredient}
-          className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+          variant="outline"
+          className="mt-2"
         >
           Add Ingredient
-        </button>
+        </Button>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Instructions *</label>
+      <div className="space-y-2">
+        <Label>Instructions *</Label>
         {instructions.map((instruction, index) => (
-          <div key={index} className="flex gap-2 mb-2">
-            <textarea
+          <div key={index} className="flex gap-2">
+            <Textarea
               value={instruction}
               onChange={(e) => updateInstruction(index, e.target.value)}
               placeholder={`Step ${index + 1}`}
               rows={2}
-              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1"
             />
-            <button
+            <Button
               type="button"
               onClick={() => removeInstruction(index)}
-              className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              variant="destructive"
+              size="sm"
             >
               Remove
-            </button>
+            </Button>
           </div>
         ))}
-        <button
+        <Button
           type="button"
           onClick={addInstruction}
-          className="mt-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+          variant="outline"
+          className="mt-2"
         >
           Add Instruction
-        </button>
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="prepTime" className="block text-sm font-medium mb-2">
-            Prep Time (minutes)
-          </label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="prepTime">Prep Time (minutes)</Label>
+          <Input
             type="number"
             id="prepTime"
             value={prepTime}
             onChange={(e) => setPrepTime(e.target.value ? parseInt(e.target.value) : '')}
             min="0"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label htmlFor="cookTime" className="block text-sm font-medium mb-2">
-            Cook Time (minutes)
-          </label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="cookTime">Cook Time (minutes)</Label>
+          <Input
             type="number"
             id="cookTime"
             value={cookTime}
             onChange={(e) => setCookTime(e.target.value ? parseInt(e.target.value) : '')}
             min="0"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="servings" className="block text-sm font-medium mb-2">
-            Servings
-          </label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="servings">Servings</Label>
+          <Input
             type="number"
             id="servings"
             value={servings}
             onChange={(e) => setServings(e.target.value ? parseInt(e.target.value) : '')}
             min="1"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium mb-2">
-            Difficulty
-          </label>
-          <select
-            id="difficulty"
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value as 'Easy' | 'Medium' | 'Hard' | '')}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-900 text-white"
-          >
-            <option value="">Select difficulty</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-          </select>
+        <div className="space-y-2">
+          <Label htmlFor="difficulty">Difficulty</Label>
+          <Select value={difficulty} onValueChange={(value) => setDifficulty(value as 'Easy' | 'Medium' | 'Hard' | '')}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select difficulty" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Easy">Easy</SelectItem>
+              <SelectItem value="Medium">Medium</SelectItem>
+              <SelectItem value="Hard">Hard</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      <div>
-        <label htmlFor="category" className="block text-sm font-medium mb-2">
-          Category
-        </label>
-        <input
-          type="text"
+      <div className="space-y-2">
+        <Label htmlFor="category">Category</Label>
+        <Input
           id="category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="e.g., Dessert, Main Course, Appetizer"
         />
       </div>
 
-      <div>
-        <label htmlFor="tags" className="block text-sm font-medium mb-2">
-          Tags (comma-separated)
-        </label>
-        <input
-          type="text"
+      <div className="space-y-2">
+        <Label htmlFor="tags">Tags (comma-separated)</Label>
+        <Input
           id="tags"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="e.g., vegetarian, quick, family-friendly"
         />
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold"
+        className="w-full"
       >
         {loading
           ? (isEditMode ? 'Updating Recipe...' : 'Creating Recipe...')
           : (isEditMode ? 'Update Recipe' : 'Create Recipe')
         }
-      </button>
+      </Button>
     </form>
   );
 }
