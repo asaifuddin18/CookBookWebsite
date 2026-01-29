@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAllRecipes } from '@/lib/dynamodb';
 import { Recipe } from '@/lib/types';
 
+/**
+ * Search algorithm.
+ * @param request - web request
+ * @returns - list of matching recipes
+ */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -16,32 +21,42 @@ export async function GET(request: NextRequest) {
 
     const filteredRecipes = allRecipes.filter((recipe: Recipe) => {
       // Search in title
-      if (recipe.title.toLowerCase().includes(searchTerm)) {
+      if (searchTerm.includes(recipe.title.toLowerCase())) {
         return true;
       }
 
       // Search in description
-      if (recipe.description && recipe.description.toLowerCase().includes(searchTerm)) {
+      if (recipe.description && searchTerm.includes(recipe.description.toLocaleLowerCase())) {
         return true;
       }
 
       // Search in author
-      if (recipe.author.toLowerCase().includes(searchTerm)) {
+      if (searchTerm.includes(recipe.author.toLocaleLowerCase())) {
         return true;
       }
-
-      // Search in category
-      if (recipe.category && recipe.category.toLowerCase().includes(searchTerm)) {
+      
+      // Search in Meal Type
+      if (recipe.mealType?.some(meal =>searchTerm.includes(meal.toLocaleLowerCase()))) {
         return true;
       }
 
       // Search in ingredients
-      if (recipe.ingredients.some(ing => ing.name.toLowerCase().includes(searchTerm))) {
+      if (recipe.ingredients.some(ing => searchTerm.includes(ing.name.toLowerCase()))) {
         return true;
       }
 
       // Search in tags
-      if (recipe.tags && recipe.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+      if (recipe.tags && recipe.tags.some(tag => searchTerm.includes(tag.toLocaleLowerCase()))) {
+        return true;
+      }
+
+      // Search in Cuisine
+      if (recipe.cuisine && searchTerm.includes(recipe.cuisine.toLocaleLowerCase())) {
+        return true;
+      }
+
+      // Search in Difficulty
+      if (recipe.difficulty && searchTerm.includes(recipe.difficulty.toLocaleLowerCase())) {
         return true;
       }
 

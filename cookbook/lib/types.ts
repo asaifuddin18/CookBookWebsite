@@ -14,7 +14,7 @@ export interface Recipe {
   prepTime?: number;
   cookTime?: number;
   servings?: number;
-  category?: string;
+  mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
   tags?: string[];

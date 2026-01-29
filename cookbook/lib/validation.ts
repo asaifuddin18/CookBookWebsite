@@ -15,7 +15,7 @@ export const recipeSchema = z.object({
   prepTime: z.number().min(0, 'Prep time cannot be negative').optional(),
   cookTime: z.number().min(0, 'Cook time cannot be negative').optional(),
   servings: z.number().min(1, 'Servings must be at least 1').optional(),
-  category: z.string().optional(),
+  mealType: z.array(z.enum(['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'])).optional(),
   difficulty: z.enum(['Easy', 'Medium', 'Hard']).optional(),
   cuisine: z.enum(['American', 'Indian', 'Thai', 'Italian', 'Chinese', 'Korean', 'Mexican', 'Other']).optional(),
   tags: z.array(z.string()).optional(),

@@ -21,7 +21,7 @@ interface RecipeFormProps {
     prepTime?: number;
     cookTime?: number;
     servings?: number;
-    category?: string;
+    mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
     difficulty?: 'Easy' | 'Medium' | 'Hard';
     cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
     tags?: string[];
@@ -46,7 +46,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [prepTime, setPrepTime] = useState<number | ''>(initialRecipe?.prepTime || '');
   const [cookTime, setCookTime] = useState<number | ''>(initialRecipe?.cookTime || '');
   const [servings, setServings] = useState<number | ''>(initialRecipe?.servings || '');
-  const [category, setCategory] = useState(initialRecipe?.category || '');
+  const [mealType, setMealType] = useState<Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>>(
+    initialRecipe?.mealType || []
+  );
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | ''>(
     initialRecipe?.difficulty || ''
   );
@@ -89,6 +91,14 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     setInstructions(updated);
   };
 
+  const toggleMealType = (type: 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack') => {
+    setMealType(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -104,7 +114,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         prepTime: prepTime || undefined,
         cookTime: cookTime || undefined,
         servings: servings || undefined,
-        category: category || undefined,
+        mealType: mealType.length > 0 ? mealType : undefined,
         difficulty: difficulty || undefined,
         cuisine: cuisine || undefined,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t) : undefined,
@@ -324,13 +334,20 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Input
-            id="category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="e.g., Dessert, Main Course, Appetizer"
-          />
+          <Label>Meal Type</Label>
+          <div className="flex flex-wrap gap-3 pt-2">
+            {(['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'] as const).map((type) => (
+              <label key={type} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={mealType.includes(type)}
+                  onChange={() => toggleMealType(type)}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{type}</span>
+              </label>
+            ))}
+          </div>
         </div>
       </div>
 

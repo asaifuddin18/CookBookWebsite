@@ -46,9 +46,9 @@ export default async function RecipeDetailPage({
             {recipe.difficulty && (
               <Badge variant="secondary">{recipe.difficulty}</Badge>
             )}
-            {recipe.category && (
-              <Badge variant="outline">{recipe.category}</Badge>
-            )}
+            {recipe.mealType && recipe.mealType.map((type, index) => (
+              <Badge key={index} variant="outline">{type}</Badge>
+            ))}
             {recipe.cuisine && (
               <Badge variant="outline">{recipe.cuisine}</Badge>
             )}
