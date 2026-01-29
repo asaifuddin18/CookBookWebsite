@@ -1,20 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from './ThemeToggle';
+import { useSearch } from './SearchProvider';
 
 export default function Navbar() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { searchQuery, setSearchQuery } = useSearch();
+  const [localQuery, setLocalQuery] = useState(searchQuery);
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Sync local input with context
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  // Debounced search - update context after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(localQuery);
+
+      // If not on homepage and user is searching, navigate to homepage
+      if (localQuery.trim() && pathname !== '/') {
+        router.push('/');
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [localQuery, setSearchQuery, pathname, router]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    // Immediate search on submit (don't wait for debounce)
+    setSearchQuery(localQuery);
+    if (pathname !== '/') {
+      router.push('/');
     }
   };
 
@@ -27,9 +51,6 @@ export default function Navbar() {
               Cookbook
             </Link>
             <div className="hidden md:flex gap-4">
-              <Button variant="ghost" asChild>
-                <Link href="/recipes">View Recipes</Link>
-              </Button>
               <Button asChild>
                 <Link href="/recipes/new">Add Recipe</Link>
               </Button>
@@ -40,8 +61,8 @@ export default function Navbar() {
             <form onSubmit={handleSearch} className="flex items-center gap-2">
               <Input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={localQuery}
+                onChange={(e) => setLocalQuery(e.target.value)}
                 placeholder="Search recipes..."
                 className="w-48 sm:w-64"
               />
@@ -53,9 +74,6 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         <div className="md:hidden flex gap-2 pb-3">
-          <Button variant="outline" className="flex-1" asChild>
-            <Link href="/recipes">View Recipes</Link>
-          </Button>
           <Button className="flex-1" asChild>
             <Link href="/recipes/new">Add Recipe</Link>
           </Button>

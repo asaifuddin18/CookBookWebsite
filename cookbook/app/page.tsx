@@ -1,47 +1,47 @@
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Link from 'next/link';
+import { getAllRecipes } from '@/lib/dynamodb';
+import RecipeListPage from './components/RecipeListPage';
+import { Recipe } from '@/lib/types';
 
-export default function Home() {
+export default async function Home() {
+  let recipes: Recipe[] = [];
+  let error = null;
+
+  try {
+    recipes = await getAllRecipes();
+  } catch (err) {
+    error = err instanceof Error ? err.message : 'Failed to load recipes';
+    recipes = [];
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <main className="flex flex-col items-center justify-center px-6 py-20 text-center max-w-6xl mx-auto">
-        <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-6">
-          Welcome to Cookbook
-        </h1>
-        <p className="text-xl text-gray-700 dark:text-gray-300 mb-16 max-w-2xl">
-          Discover, share, and save your favorite recipes. Build your personal collection
-          and explore dishes from around the world.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-          <Card>
-            <CardHeader>
-              <div className="text-4xl mb-2">📝</div>
-              <CardTitle>Share Your Recipes</CardTitle>
-              <CardDescription>
-                Upload your favorite recipes and share them with the community.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div className="text-4xl mb-2">🔍</div>
-              <CardTitle>Discover New Dishes</CardTitle>
-              <CardDescription>
-                Browse and search through a collection of recipes from various cuisines.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div className="text-4xl mb-2">👨‍🍳</div>
-              <CardTitle>Easy to Follow</CardTitle>
-              <CardDescription>
-                Step-by-step instructions make cooking simple and enjoyable.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              All Recipes
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Browse and search through our collection
+            </p>
+          </div>
+          <Link
+            href="/recipes/new"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Add New Recipe
+          </Link>
         </div>
-      </main>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+        )}
+
+        <RecipeListPage initialRecipes={recipes} />
+      </div>
     </div>
   );
 }
