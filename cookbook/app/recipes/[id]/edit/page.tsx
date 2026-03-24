@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
 import RecipeForm from '@/app/components/RecipeForm';
+import { ArrowLeft } from 'lucide-react';
 
 export default async function EditRecipePage({
   params,
@@ -11,9 +12,7 @@ export default async function EditRecipePage({
   const { id } = await params;
   const recipe = await getRecipe(id);
 
-  if (!recipe) {
-    notFound();
-  }
+  if (!recipe) notFound();
 
   const initialRecipe = {
     title: recipe.title,
@@ -31,30 +30,14 @@ export default async function EditRecipePage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Edit Recipe
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Update your recipe details
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
-          <RecipeForm recipeId={recipe.recipeId} initialRecipe={initialRecipe} />
-        </div>
-
-        <div className="mt-6 text-center">
-          <Link
-            href={`/recipes/${recipe.recipeId}`}
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            Cancel and go back
-          </Link>
-        </div>
-      </div>
+    <div className="max-w-[680px] mx-auto px-5 lg:px-10 py-8 pb-16">
+      <Link href={`/recipes/${recipe.recipeId}`} className="inline-flex items-center gap-1.5 text-[13px] text-text-muted hover:text-copper transition-colors mb-6">
+        <ArrowLeft size={14} />
+        Back to recipe
+      </Link>
+      <h1 className="font-serif text-[32px] text-brown font-normal mb-1">Edit recipe</h1>
+      <p className="text-[15px] text-text-muted mb-8">Update your recipe details</p>
+      <RecipeForm recipeId={recipe.recipeId} initialRecipe={initialRecipe} />
     </div>
   );
 }

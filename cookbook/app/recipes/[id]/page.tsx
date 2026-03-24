@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, ChefHat } from 'lucide-react';
 
 export default async function RecipeDetailPage({
   params,
@@ -12,146 +11,156 @@ export default async function RecipeDetailPage({
   const { id } = await params;
   const recipe = await getRecipe(id);
 
-  if (!recipe) {
-    notFound();
-  }
+  if (!recipe) notFound();
 
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+  const authorInitial = recipe.author.charAt(0).toUpperCase();
+
+  const CUISINE_EMOJI: Record<string, string> = {
+    Japanese: '🍜', Italian: '🍝', Mexican: '🌮', Indian: '🍛',
+    American: '🍔', Thai: '🍲', Chinese: '🥡', Korean: '🍱', French: '🥐', Other: '🍴',
+  };
+  const MEAL_EMOJI: Record<string, string> = {
+    Breakfast: '🥞', Lunch: '🥗', Dinner: '🍽️', Dessert: '🍰', Snack: '🥨',
+  };
+  const emoji = (recipe.cuisine && CUISINE_EMOJI[recipe.cuisine]) || (recipe.mealType?.[0] && MEAL_EMOJI[recipe.mealType[0]]) || '🍴';
+
+  const CARD_BACKGROUNDS = ['#F0E0CC', '#E0CCBA', '#CCE0D4', '#E8D0D0', '#D4E0CC', '#E0D4C6'];
+  const sum = recipe.recipeId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const cardBg = CARD_BACKGROUNDS[sum % CARD_BACKGROUNDS.length];
+
+  const formatTime = (mins: number) => {
+    if (mins < 60) return `${mins} min`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <Link
-            href="/recipes"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            ← Back to Recipes
-          </Link>
+    <div className="max-w-[800px] mx-auto px-5 lg:px-10 py-8 pb-16">
+      {/* Back link */}
+      <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] text-text-muted hover:text-copper transition-colors mb-6">
+        <ArrowLeft size={14} />
+        Back to recipes
+      </Link>
 
-          <Button asChild>
-            <Link href={`/recipes/${recipe.recipeId}/edit`}>Edit Recipe</Link>
-          </Button>
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-wrap gap-2 mb-3">
+          {recipe.cuisine && (
+            <span className="text-[11px] bg-copper text-white px-3 py-1 rounded-full">{recipe.cuisine}</span>
+          )}
+          {recipe.mealType?.map((type) => (
+            <span key={type} className="text-[11px] bg-cream-dark text-text-muted px-3 py-1 rounded-full">{type}</span>
+          ))}
+          {recipe.difficulty && (
+            <span className="text-[11px] bg-cream-dark text-text-muted px-3 py-1 rounded-full">{recipe.difficulty}</span>
+          )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            {recipe.title}
-          </h1>
+        <h1 className="font-serif text-[36px] md:text-[42px] text-brown leading-tight mb-4">{recipe.title}</h1>
 
-          <div className="flex items-center gap-4 mb-6">
-            <p className="text-gray-600 dark:text-gray-400">
-              by <span className="font-semibold">{recipe.author}</span>
-            </p>
-            {recipe.difficulty && (
-              <Badge variant="secondary">{recipe.difficulty}</Badge>
-            )}
-            {recipe.mealType && recipe.mealType.map((type, index) => (
-              <Badge key={index} variant="outline">{type}</Badge>
-            ))}
-            {recipe.cuisine && (
-              <Badge variant="outline">{recipe.cuisine}</Badge>
-            )}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-full bg-cream-dark flex items-center justify-center text-[12px] font-semibold text-copper-dark">
+            {authorInitial}
           </div>
-
-          {recipe.description && (
-            <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg">
-              {recipe.description}
-            </p>
-          )}
-
-          <div className="flex flex-wrap gap-6 mb-8 pb-6 border-b dark:border-gray-700">
-            {recipe.prepTime && (
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Prep Time</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {recipe.prepTime} min
-                </p>
-              </div>
-            )}
-            {recipe.cookTime && (
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Cook Time</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {recipe.cookTime} min
-                </p>
-              </div>
-            )}
-            {totalTime > 0 && (
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Total Time</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {totalTime} min
-                </p>
-              </div>
-            )}
-            {recipe.servings && (
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Servings</p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {recipe.servings}
-                </p>
-              </div>
-            )}
+          <div>
+            <span className="block text-[14px] text-brown font-medium">{recipe.author}</span>
+            <span className="text-[12px] text-text-light">Added {new Date(recipe.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           </div>
+        </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Ingredients
-            </h2>
-            <ul className="space-y-2">
-              {recipe.ingredients.map((ingredient, index) => (
-                <li
-                  key={index}
-                  className="flex items-start text-gray-700 dark:text-gray-300"
-                >
-                  <span className="mr-2">•</span>
-                  <span>
-                    {ingredient.quantity} {ingredient.unit && `${ingredient.unit} `}
-                    {ingredient.name}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {recipe.description && (
+          <p className="font-serif italic text-[16px] text-text-muted leading-relaxed pl-4 border-l-[3px] border-copper-light mb-5">
+            {recipe.description}
+          </p>
+        )}
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Instructions
-            </h2>
-            <ol className="space-y-4">
-              {recipe.instructions.map((instruction, index) => (
-                <li
-                  key={index}
-                  className="flex gap-4 text-gray-700 dark:text-gray-300"
-                >
-                  <span className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                    {index + 1}
-                  </span>
-                  <p className="flex-1 pt-1">{instruction}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {recipe.tags && recipe.tags.length > 0 && (
-            <div className="pt-6 border-t dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Tags
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {recipe.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary">{tag}</Badge>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-6 text-sm text-gray-500 dark:text-gray-400">
-            <p>Added on {new Date(recipe.createdAt).toLocaleDateString()}</p>
-          </div>
+        <div className="flex gap-3">
+          <Link
+            href={`/recipes/${recipe.recipeId}/edit`}
+            className="inline-flex items-center gap-1.5 bg-copper hover:bg-copper-dark text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all hover:-translate-y-px"
+          >
+            <ChefHat size={14} />
+            Edit recipe
+          </Link>
         </div>
       </div>
+
+      {/* Emoji image */}
+      <div className="w-full h-[280px] md:h-[320px] rounded-[14px] flex items-center justify-center text-[80px] mb-8" style={{ background: cardBg }}>
+        {emoji}
+      </div>
+
+      {/* Time grid */}
+      {(recipe.prepTime || recipe.cookTime || totalTime || recipe.servings) && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-9">
+          {recipe.prepTime && (
+            <div className="bg-card border border-border rounded-[10px] p-4 text-center">
+              <div className="text-[11px] text-text-light uppercase tracking-widest mb-1">Prep time</div>
+              <div className="font-serif text-[20px] text-brown">{formatTime(recipe.prepTime)}</div>
+            </div>
+          )}
+          {recipe.cookTime && (
+            <div className="bg-card border border-border rounded-[10px] p-4 text-center">
+              <div className="text-[11px] text-text-light uppercase tracking-widest mb-1">Cook time</div>
+              <div className="font-serif text-[20px] text-brown">{formatTime(recipe.cookTime)}</div>
+            </div>
+          )}
+          {totalTime > 0 && (
+            <div className="bg-card border border-border rounded-[10px] p-4 text-center">
+              <div className="text-[11px] text-text-light uppercase tracking-widest mb-1">Total time</div>
+              <div className="font-serif text-[20px] text-brown">{formatTime(totalTime)}</div>
+            </div>
+          )}
+          {recipe.servings && (
+            <div className="bg-card border border-border rounded-[10px] p-4 text-center">
+              <div className="text-[11px] text-text-light uppercase tracking-widest mb-1">Servings</div>
+              <div className="font-serif text-[20px] text-brown">{recipe.servings}</div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Ingredients */}
+      <div className="mb-9">
+        <h2 className="font-serif text-[22px] text-brown font-normal mb-4 pb-2 border-b border-border">Ingredients</h2>
+        <ul className="space-y-0">
+          {recipe.ingredients.map((ingredient, index) => (
+            <li key={index} className="flex items-center gap-3 py-2.5 border-b border-dashed border-border last:border-0 text-[15px] text-brown-light">
+              <span className="w-2 h-2 rounded-full bg-copper-light flex-shrink-0" />
+              {ingredient.quantity} {ingredient.unit && `${ingredient.unit} `}{ingredient.name}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Instructions */}
+      <div className="mb-9">
+        <h2 className="font-serif text-[22px] text-brown font-normal mb-4 pb-2 border-b border-border">Instructions</h2>
+        <ol className="space-y-0">
+          {recipe.instructions.map((instruction, index) => (
+            <li key={index} className="flex gap-4 py-4 border-b border-border last:border-0 items-start">
+              <span className="w-8 h-8 rounded-full bg-cream-dark flex items-center justify-center font-serif text-[14px] text-copper-dark flex-shrink-0 mt-0.5">
+                {index + 1}
+              </span>
+              <p className="text-[15px] text-brown-light leading-relaxed flex-1">{instruction}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* Tags */}
+      {recipe.tags && recipe.tags.length > 0 && (
+        <div className="mb-6">
+          <h2 className="font-serif text-[22px] text-brown font-normal mb-4 pb-2 border-b border-border">Tags</h2>
+          <div className="flex flex-wrap gap-2">
+            {recipe.tags.map((tag, index) => (
+              <span key={index} className="text-[12px] bg-cream-dark text-text-muted px-3.5 py-1.5 rounded-full">{tag}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
