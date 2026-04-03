@@ -15,8 +15,8 @@
   --color-copper-light: #D4A880;
   --color-copper-dark: #A07048;
   --color-brown: #3A2E24;
-  --color-brown-light: #5A4D40;
-  --color-text-muted: #7A6E62;
+  --color-brown-light: #7A6B5C;
+  --color-text-muted: #8A7A6A;
   --color-text-light: #A89A8A;
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -53,7 +53,7 @@
   --secondary: #F5EDE0;
   --secondary-foreground: #3A2E24;
   --muted: #F5EDE0;
-  --muted-foreground: #7A6E62;
+  --muted-foreground: #8A7A6A;
   --accent: #F5EDE0;
   --accent-foreground: #3A2E24;
   --destructive: oklch(0.577 0.245 27.325);
