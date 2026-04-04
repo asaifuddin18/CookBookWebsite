@@ -153,8 +153,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [fat, setFat] = useState<number | ''>(initialRecipe?.fat ?? '');
   const [estimating, setEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
-  const [importTab, setImportTab] = useState<'photo' | 'url'>('photo');
+  const [importTab, setImportTab] = useState<'photo' | 'url' | 'text'>('photo');
   const [importUrl, setImportUrl] = useState('');
+  const [importText, setImportText] = useState('');
   const [importInstructions, setImportInstructions] = useState('');
   const [importPhoto, setImportPhoto] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
@@ -323,6 +324,27 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     }
   };
 
+  const handleImportText = async () => {
+    if (!importText.trim()) return;
+    setImporting(true);
+    setImportError(null);
+    setImportSuccess(false);
+    try {
+      const res = await fetch('/api/import-recipe/text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: importText, instructions: importInstructions }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Import failed');
+      applyImport(await res.json());
+      setImportText('');
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Import failed. Try again.');
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const handleImportUrl = async () => {
     if (!importUrl.trim()) return;
     setImporting(true);
@@ -404,18 +426,18 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       {/* Import */}
       <div className="mb-8 p-5 rounded-xl border-[1.5px] border-dashed border-copper-light bg-cream">
         <h3 className="font-serif text-[18px] text-brown font-normal mb-1">Import recipe</h3>
-        <p className="text-[12px] text-text-light mb-4">Import from a photo or URL — fields will be pre-filled for you to review.</p>
+        <p className="text-[12px] text-text-light mb-4">Import from a photo, URL, or pasted text — fields will be pre-filled for you to review.</p>
 
         {/* Tabs */}
         <div className="flex gap-1 mb-4 bg-white dark:bg-[#1A1410] rounded-lg p-1 w-fit border border-border">
-          {(['photo', 'url'] as const).map(tab => (
+          {(['photo', 'url', 'text'] as const).map(tab => (
             <button
               key={tab}
               type="button"
               onClick={() => { setImportTab(tab); setImportError(null); setImportSuccess(false); }}
               className={`text-[13px] px-4 py-1.5 rounded-md transition-all font-medium ${importTab === tab ? 'bg-copper text-white' : 'text-text-muted hover:text-brown'}`}
             >
-              {tab === 'photo' ? '📷 Photo' : '🔗 URL'}
+              {tab === 'photo' ? '📷 Photo' : tab === 'url' ? '🔗 URL' : '📋 Text'}
             </button>
           ))}
         </div>
@@ -427,7 +449,26 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
           className="w-full px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[13px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light mb-3"
         />
 
-        {importTab === 'photo' ? (
+        {importTab === 'text' ? (
+          <div className="flex flex-col gap-2">
+            <textarea
+              value={importText}
+              onChange={e => setImportText(e.target.value)}
+              placeholder="Paste recipe text here..."
+              rows={6}
+              disabled={importing}
+              className="w-full px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light resize-y leading-relaxed"
+            />
+            <button
+              type="button"
+              onClick={handleImportText}
+              disabled={importing || !importText.trim()}
+              className="self-end bg-copper hover:bg-copper-dark disabled:opacity-50 text-white text-[13px] font-medium px-5 py-2.5 rounded-lg transition-all"
+            >
+              {importing ? 'Importing...' : 'Import'}
+            </button>
+          </div>
+        ) : importTab === 'photo' ? (
           <div className="flex gap-2">
             <label className="flex-1 inline-flex items-center gap-2 cursor-pointer border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors bg-white dark:bg-[#251C14] truncate">
               <span className="truncate">{importPhoto ? importPhoto.name : 'Choose photo'}</span>
