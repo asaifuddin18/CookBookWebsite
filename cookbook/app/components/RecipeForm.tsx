@@ -306,7 +306,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         <p className="text-[12px] text-text-light mb-4">Import from a photo or URL — fields will be pre-filled for you to review.</p>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-4 bg-white rounded-lg p-1 w-fit border border-border">
+        <div className="flex gap-1 mb-4 bg-white dark:bg-[#1A1410] rounded-lg p-1 w-fit border border-border">
           {(['photo', 'url'] as const).map(tab => (
             <button
               key={tab}
@@ -320,7 +320,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         </div>
 
         {importTab === 'photo' ? (
-          <label className={`inline-flex items-center gap-2 cursor-pointer border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors bg-white ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
+          <label className={`inline-flex items-center gap-2 cursor-pointer border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors bg-white dark:bg-[#251C14] ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
             {importing ? 'Importing...' : 'Choose photo'}
             <input type="file" accept="image/*" onChange={handleImportPhoto} className="hidden" disabled={importing} />
           </label>
@@ -398,7 +398,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
             </div>
           )}
           <div>
-            <label className="inline-flex items-center gap-2 cursor-pointer bg-white border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors">
+            <label className="inline-flex items-center gap-2 cursor-pointer bg-white dark:bg-[#251C14] border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors">
               {imagePreview ? 'Change photo' : 'Upload photo'}
               <input
                 type="file"
@@ -439,7 +439,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               <button
                 type="button"
                 onClick={() => removeIngredient(index)}
-                className="w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center text-text-light text-lg hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0"
+                className="w-8 h-8 rounded-full border border-[#D4C0A8] bg-[#EEE0CC] flex items-center justify-center text-[#A07048] text-lg hover:border-[#C8956C] hover:bg-[#E0C8A8] transition-all flex-shrink-0"
               >
                 ×
               </button>
@@ -474,7 +474,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               <button
                 type="button"
                 onClick={() => removeInstruction(index)}
-                className="w-8 h-8 rounded-full border border-border bg-white flex items-center justify-center text-text-light text-lg hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0 mt-1"
+                className="w-8 h-8 rounded-full border border-[#D4C0A8] bg-[#EEE0CC] flex items-center justify-center text-[#A07048] text-lg hover:border-[#C8956C] hover:bg-[#E0C8A8] transition-all flex-shrink-0 mt-1"
               >
                 ×
               </button>

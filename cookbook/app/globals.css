@@ -111,4 +111,7 @@
   .dark textarea::placeholder {
     color: #6A5A4A !important;
   }
+  .dark .bg-white {
+    background-color: #251C14 !important;
+  }
 }
