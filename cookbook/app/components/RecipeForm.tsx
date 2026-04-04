@@ -60,6 +60,8 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [protein, setProtein] = useState<number | ''>(initialRecipe?.protein ?? '');
   const [carbs, setCarbs] = useState<number | ''>(initialRecipe?.carbs ?? '');
   const [fat, setFat] = useState<number | ''>(initialRecipe?.fat ?? '');
+  const [estimating, setEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState<string | null>(null);
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -123,6 +125,32 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         ? prev.filter(t => t !== type)
         : [...prev, type]
     );
+  };
+
+  const handleEstimateMacros = async () => {
+    const validIngredients = ingredients.filter(i => i.name && i.quantity);
+    if (!validIngredients.length) {
+      setEstimateError('Add some ingredients first.');
+      return;
+    }
+    setEstimating(true);
+    setEstimateError(null);
+    try {
+      const res = await fetch('/api/estimate-macros', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients: validIngredients, servings: servings || undefined }),
+      });
+      if (!res.ok) throw new Error('Estimation failed');
+      const data = await res.json();
+      setProtein(data.protein);
+      setCarbs(data.carbs);
+      setFat(data.fat);
+    } catch {
+      setEstimateError('Could not estimate macros. Try again.');
+    } finally {
+      setEstimating(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -437,11 +465,22 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       {/* Macros */}
       <div className="mb-7">
         <h3 className="font-serif text-[18px] text-brown font-normal mb-1 pb-2 border-b border-border">Nutrition <span className="font-sans text-[13px] text-text-light font-normal">(per serving, optional)</span></h3>
-        {(protein !== '' || carbs !== '' || fat !== '') && (
-          <p className="text-[12px] text-text-light mb-3">
-            Calories: <span className="text-copper-dark font-medium">{Math.round((Number(protein) || 0) * 4 + (Number(carbs) || 0) * 4 + (Number(fat) || 0) * 9)} kcal</span>
-          </p>
-        )}
+        <div className="flex items-center gap-3 mt-3 mb-4">
+          <button
+            type="button"
+            onClick={handleEstimateMacros}
+            disabled={estimating}
+            className="inline-flex items-center gap-1.5 text-[13px] text-copper border border-dashed border-copper-light px-4 py-2 rounded-lg hover:bg-copper/5 hover:border-solid transition-all disabled:opacity-50"
+          >
+            {estimating ? 'Estimating...' : '✨ Estimate with AI'}
+          </button>
+          {(protein !== '' || carbs !== '' || fat !== '') && (
+            <span className="text-[12px] text-text-light">
+              Calories: <span className="text-copper-dark font-medium">{Math.round((Number(protein) || 0) * 4 + (Number(carbs) || 0) * 4 + (Number(fat) || 0) * 9)} kcal</span>
+            </span>
+          )}
+        </div>
+        {estimateError && <p className="text-[12px] text-red-500 mb-3">{estimateError}</p>}
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="block text-[13px] text-text-muted font-medium mb-1.5">Protein (g)</label>
