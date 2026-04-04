@@ -159,6 +159,8 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [importTab, setImportTab] = useState<'photo' | 'url'>('photo');
   const [importUrl, setImportUrl] = useState('');
+  const [importInstructions, setImportInstructions] = useState('');
+  const [importPhoto, setImportPhoto] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState(false);
@@ -287,8 +289,12 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const applyImport = (data: ImportedRecipe) => {
     setTitle(data.title || '');
     setDescription(data.description || '');
-    setIngredients(data.ingredients?.length ? data.ingredients.map(i => ({ name: i.name, quantity: i.quantity, unit: i.unit || '' })) : [{ name: '', quantity: '', unit: '' }]);
-    setInstructions(data.instructions?.length ? data.instructions : ['']);
+    const newIngredients = data.ingredients?.length ? data.ingredients.map(i => ({ name: i.name, quantity: i.quantity, unit: i.unit || '' })) : [{ name: '', quantity: '', unit: '' }];
+    const newInstructions = data.instructions?.length ? data.instructions : [''];
+    setIngredients(newIngredients);
+    setIngredientIds(newIngredients.map(mkId));
+    setInstructions(newInstructions);
+    setInstructionIds(newInstructions.map(mkId));
     setPrepTime(data.prepTime || '');
     setCookTime(data.cookTime || '');
     setServings(data.servings || '');
@@ -300,26 +306,25 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     setImportError(null);
   };
 
-  const handleImportPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleImportPhotoSubmit = async () => {
+    if (!importPhoto) return;
     setImporting(true);
     setImportError(null);
     setImportSuccess(false);
     try {
-      const { base64, mediaType } = await compressImage(file);
+      const { base64, mediaType } = await compressImage(importPhoto);
       const res = await fetch('/api/import-recipe/photo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: base64, mediaType }),
+        body: JSON.stringify({ imageBase64: base64, mediaType, instructions: importInstructions }),
       });
       if (!res.ok) throw new Error((await res.json()).error || 'Import failed');
       applyImport(await res.json());
+      setImportPhoto(null);
     } catch (err) {
       setImportError(err instanceof Error ? err.message : 'Import failed. Try again.');
     } finally {
       setImporting(false);
-      e.target.value = '';
     }
   };
 
@@ -332,7 +337,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       const res = await fetch('/api/import-recipe/url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: importUrl.trim() }),
+        body: JSON.stringify({ url: importUrl.trim(), instructions: importInstructions }),
       });
       if (!res.ok) throw new Error((await res.json()).error || 'Import failed');
       applyImport(await res.json());
@@ -420,11 +425,28 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
           ))}
         </div>
 
+        <input
+          value={importInstructions}
+          onChange={e => setImportInstructions(e.target.value)}
+          placeholder='Optional instructions (e.g. "do not include the pita bread")'
+          className="w-full px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[13px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light mb-3"
+        />
+
         {importTab === 'photo' ? (
-          <label className={`inline-flex items-center gap-2 cursor-pointer border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors bg-white dark:bg-[#251C14] ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
-            {importing ? 'Importing...' : 'Choose photo'}
-            <input type="file" accept="image/*" onChange={handleImportPhoto} className="hidden" disabled={importing} />
-          </label>
+          <div className="flex gap-2">
+            <label className="flex-1 inline-flex items-center gap-2 cursor-pointer border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors bg-white dark:bg-[#251C14] truncate">
+              <span className="truncate">{importPhoto ? importPhoto.name : 'Choose photo'}</span>
+              <input type="file" accept="image/*" onChange={e => { setImportPhoto(e.target.files?.[0] || null); e.target.value = ''; }} className="hidden" disabled={importing} />
+            </label>
+            <button
+              type="button"
+              onClick={handleImportPhotoSubmit}
+              disabled={importing || !importPhoto}
+              className="bg-copper hover:bg-copper-dark disabled:opacity-50 text-white text-[13px] font-medium px-5 py-2.5 rounded-lg transition-all"
+            >
+              {importing ? 'Importing...' : 'Import'}
+            </button>
+          </div>
         ) : (
           <div className="flex gap-2">
             <input

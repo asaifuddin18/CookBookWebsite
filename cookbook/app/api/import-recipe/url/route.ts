@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { url } = await req.json() as { url: string };
+  const { url, instructions } = await req.json() as { url: string; instructions?: string };
   if (!url) {
     return NextResponse.json({ error: 'No URL provided' }, { status: 400 });
   }
@@ -39,6 +39,6 @@ export async function POST(req: NextRequest) {
   const html = await res.text();
   const text = stripHtml(html);
 
-  const recipe = await extractRecipeFromContent({ type: 'text', text });
+  const recipe = await extractRecipeFromContent({ type: 'text', text }, instructions);
   return NextResponse.json(recipe);
 }

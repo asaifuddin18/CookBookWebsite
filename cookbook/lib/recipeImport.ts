@@ -43,17 +43,20 @@ For ingredients, split quantity and unit clearly. For example "2 cups flour" →
 Return ONLY the JSON object, no markdown code fences.`;
 
 export async function extractRecipeFromContent(
-  content: { type: 'text'; text: string } | { type: 'image'; base64: string; mediaType: string }
+  content: { type: 'text'; text: string } | { type: 'image'; base64: string; mediaType: string },
+  instructions?: string
 ): Promise<ImportedRecipe> {
+  const instructionsNote = instructions?.trim() ? `\n\nAdditional instructions from the user: ${instructions.trim()}` : '';
+
   const messageContent = content.type === 'image'
     ? [
         {
           type: 'image',
           source: { type: 'base64', media_type: content.mediaType, data: content.base64 },
         },
-        { type: 'text', text: 'Extract the recipe from this image.' },
+        { type: 'text', text: `Extract the recipe from this image.${instructionsNote}` },
       ]
-    : [{ type: 'text', text: `Extract the recipe from the following content:\n\n${content.text}` }];
+    : [{ type: 'text', text: `Extract the recipe from the following content:\n\n${content.text}${instructionsNote}` }];
 
   const response = await bedrock.send(new InvokeModelCommand({
     modelId: 'us.anthropic.claude-sonnet-4-6',
