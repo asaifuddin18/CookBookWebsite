@@ -45,6 +45,7 @@ Respond with ONLY a JSON object, no explanation:
       anthropic_version: 'bedrock-2023-05-31',
       max_tokens: 100,
       temperature: 0,
+      system: 'You are a nutrition calculator. You ONLY respond with a valid JSON object. No explanations, no preamble, no markdown. Just the JSON.',
       messages: [{ role: 'user', content: prompt }],
     }),
   }));
