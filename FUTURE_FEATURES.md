@@ -24,6 +24,12 @@ Let users group recipes into named sets (e.g. "Christmas 2025", "Weeknight Dinne
 
 At the bottom of a recipe page, show 2–3 recipes with the same cuisine or meal type.
 
+## Recipe import from photo or document
+
+On the "Add recipe" page, provide an option to upload a photo or document (image of a handwritten recipe card, a PDF, a screenshot, etc.) and have Claude extract and populate all the recipe fields automatically — title, description, ingredients, instructions, times, servings, and so on. The author reviews and edits before saving.
+
+**Why deferred:** Requires Claude API integration and file handling (passing image/PDF bytes to the API). Good candidate to build alongside the AI macro estimation feature.
+
 ## Print view
 
 A clean, printer-friendly layout for a recipe — no nav, no buttons, just the hero image, ingredients, and steps. Triggered via a print button or `?print=1` query param.
