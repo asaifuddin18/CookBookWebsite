@@ -17,7 +17,7 @@ interface RecipeFormProps {
     servings?: number;
     mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
     difficulty?: 'Easy' | 'Medium' | 'Hard';
-    cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
+    cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
     tags?: string[];
     imageUrl?: string;
   };
@@ -47,7 +47,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | ''>(
     initialRecipe?.difficulty || ''
   );
-  const [cuisine, setCuisine] = useState<'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other' | ''>(
+  const [cuisine, setCuisine] = useState<'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other' | ''>(
     initialRecipe?.cuisine || ''
   );
   const [tags, setTags] = useState(
@@ -386,7 +386,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
             <label className="block text-[13px] text-text-muted font-medium mb-1.5">Cuisine</label>
             <select
               value={cuisine}
-              onChange={(e) => setCuisine(e.target.value as 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other' | '')}
+              onChange={(e) => setCuisine(e.target.value as 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other' | '')}
               className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors appearance-none"
               style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: '36px' }}
             >
@@ -398,6 +398,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               <option value="Chinese">Chinese</option>
               <option value="Korean">Korean</option>
               <option value="Mexican">Mexican</option>
+              <option value="Japanese">Japanese</option>
               <option value="Other">Other</option>
             </select>
           </div>

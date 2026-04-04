@@ -16,8 +16,15 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
   const { searchQuery, setSearchQuery } = useSearch();
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'newest' | 'alphabetical' | 'quickest'>('newest');
   const [filteredRecipes, setFilteredRecipes] = useState(initialRecipes);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const filterCounts: Record<string, number> = {
+    All: initialRecipes.length,
+    ...Object.fromEntries(MEAL_FILTERS.map(f => [f, initialRecipes.filter(r => r.mealType?.includes(f as never)).length])),
+    ...Object.fromEntries(CUISINE_FILTERS.map(f => [f, initialRecipes.filter(r => r.cuisine === f).length])),
+  };
 
   useEffect(() => {
     setLocalQuery(searchQuery);
@@ -48,8 +55,23 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
       }
     }
 
+    if (sortBy === 'alphabetical') {
+      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === 'quickest') {
+      result = [...result].sort((a, b) => {
+        const aTime = (a.prepTime || 0) + (a.cookTime || 0);
+        const bTime = (b.prepTime || 0) + (b.cookTime || 0);
+        if (aTime === 0 && bTime === 0) return 0;
+        if (aTime === 0) return 1;
+        if (bTime === 0) return -1;
+        return aTime - bTime;
+      });
+    } else {
+      result = [...result].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    }
+
     setFilteredRecipes(result);
-  }, [searchQuery, activeFilter, initialRecipes]);
+  }, [searchQuery, activeFilter, sortBy, initialRecipes]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,28 +121,16 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
 
       {/* Filters */}
       <div className="flex justify-center gap-2 px-5 py-6 flex-wrap">
-        <button
-          onClick={() => handleFilterClick('All')}
-          className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all ${activeFilter === 'All' ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
-        >
-          All
-        </button>
-        {MEAL_FILTERS.map(f => (
+        {(['All', ...MEAL_FILTERS, ...CUISINE_FILTERS]).map(f => (
           <button
             key={f}
             onClick={() => handleFilterClick(f)}
-            className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all ${activeFilter === f ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+            className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all inline-flex items-center gap-1.5 ${activeFilter === f ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
           >
             {f}
-          </button>
-        ))}
-        {CUISINE_FILTERS.map(f => (
-          <button
-            key={f}
-            onClick={() => handleFilterClick(f)}
-            className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all ${activeFilter === f ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
-          >
-            {f}
+            <span className={`text-[11px] ${activeFilter === f ? 'text-cream/70' : 'text-text-light'}`}>
+              {filterCounts[f] ?? 0}
+            </span>
           </button>
         ))}
       </div>
@@ -132,6 +142,16 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
         </h2>
         <div className="flex-1 h-px bg-border" />
         <span className="text-[12px] text-text-light whitespace-nowrap">{filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}</span>
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as 'newest' | 'alphabetical' | 'quickest')}
+          className="text-[12px] text-text-muted border border-border rounded-lg px-2.5 py-1.5 bg-white outline-none focus:border-copper transition-colors appearance-none cursor-pointer"
+          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', paddingRight: '24px' }}
+        >
+          <option value="newest">Newest</option>
+          <option value="alphabetical">A–Z</option>
+          <option value="quickest">Quickest</option>
+        </select>
       </div>
 
       {/* Grid */}

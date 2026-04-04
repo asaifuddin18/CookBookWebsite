@@ -16,7 +16,7 @@ export interface Recipe {
   servings?: number;
   mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
-  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
+  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
   tags?: string[];
   imageUrl?: string;
   createdAt: string;
