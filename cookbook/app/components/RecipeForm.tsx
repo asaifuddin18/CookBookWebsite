@@ -4,6 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ingredient } from '@/lib/types';
 import { ImportedRecipe } from '@/lib/recipeImport';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
+
+function mkId() { return Math.random().toString(36).slice(2); }
 
 async function compressImage(file: File): Promise<{ base64: string; mediaType: string }> {
   return new Promise((resolve, reject) => {
@@ -50,6 +56,64 @@ interface RecipeFormProps {
   };
 }
 
+function SortableIngredientRow({ id, ingredient, index, onUpdate, onRemove }: {
+  id: string; ingredient: Ingredient; index: number;
+  onUpdate: (index: number, field: keyof Ingredient, value: string) => void;
+  onRemove: (index: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  return (
+    <div ref={setNodeRef} style={style} className="flex gap-2 items-center">
+      <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-text-light hover:text-copper flex-shrink-0 touch-none">
+        <GripVertical size={16} />
+      </button>
+      {ingredient.isHeader ? (
+        <input value={ingredient.name} onChange={(e) => onUpdate(index, 'name', e.target.value)} placeholder="Section header (e.g. For the marinade)"
+          className="flex-1 px-4 py-2.5 border-[1.5px] border-copper-light rounded-lg text-[13px] text-copper-dark bg-cream font-medium outline-none focus:border-copper transition-colors placeholder:text-text-light" />
+      ) : (
+        <>
+          <input value={ingredient.name} onChange={(e) => onUpdate(index, 'name', e.target.value)} placeholder="Ingredient name"
+            className="flex-1 px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light" />
+          <input value={ingredient.quantity} onChange={(e) => onUpdate(index, 'quantity', e.target.value)} placeholder="Qty"
+            className="w-20 px-3 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light" />
+          <input value={ingredient.unit || ''} onChange={(e) => onUpdate(index, 'unit', e.target.value)} placeholder="Unit"
+            className="w-20 px-3 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light" />
+        </>
+      )}
+      <button type="button" onClick={() => onRemove(index)}
+        className="w-8 h-8 rounded-full border border-[#D4C0A8] bg-[#EEE0CC] flex items-center justify-center text-[#A07048] text-lg hover:border-[#C8956C] hover:bg-[#E0C8A8] transition-all flex-shrink-0">
+        ×
+      </button>
+    </div>
+  );
+}
+
+function SortableInstructionRow({ id, instruction, index, onUpdate, onRemove }: {
+  id: string; instruction: string; index: number;
+  onUpdate: (index: number, value: string) => void;
+  onRemove: (index: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  return (
+    <div ref={setNodeRef} style={style} className="flex gap-2 items-start">
+      <button type="button" {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-text-light hover:text-copper flex-shrink-0 mt-3 touch-none">
+        <GripVertical size={16} />
+      </button>
+      <span className="w-7 h-7 rounded-full bg-cream-dark flex items-center justify-center font-serif text-[13px] text-copper-dark flex-shrink-0 mt-2.5">
+        {index + 1}
+      </span>
+      <textarea value={instruction} onChange={(e) => onUpdate(index, e.target.value)} placeholder={`Step ${index + 1}...`} rows={2}
+        className="flex-1 px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light resize-y leading-relaxed" />
+      <button type="button" onClick={() => onRemove(index)}
+        className="w-8 h-8 rounded-full border border-[#D4C0A8] bg-[#EEE0CC] flex items-center justify-center text-[#A07048] text-lg hover:border-[#C8956C] hover:bg-[#E0C8A8] transition-all flex-shrink-0 mt-1">
+        ×
+      </button>
+    </div>
+  );
+}
+
 export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps = {}) {
   const router = useRouter();
   const isEditMode = !!recipeId;
@@ -61,8 +125,14 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     initialRecipe?.ingredients || [{ name: '', quantity: '', unit: '' }]
   );
+  const [ingredientIds, setIngredientIds] = useState<string[]>(
+    () => (initialRecipe?.ingredients || [{}]).map(mkId)
+  );
   const [instructions, setInstructions] = useState<string[]>(
     initialRecipe?.instructions || ['']
+  );
+  const [instructionIds, setInstructionIds] = useState<string[]>(
+    () => (initialRecipe?.instructions || ['']).map(mkId)
   );
   const [prepTime, setPrepTime] = useState<number | ''>(initialRecipe?.prepTime || '');
   const [cookTime, setCookTime] = useState<number | ''>(initialRecipe?.cookTime || '');
@@ -93,13 +163,22 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState(false);
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
   const addIngredient = () => {
-    setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
+    setIngredients(p => [...p, { name: '', quantity: '', unit: '' }]);
+    setIngredientIds(p => [...p, mkId()]);
+  };
+
+  const addIngredientHeader = () => {
+    setIngredients(p => [...p, { name: '', quantity: '', isHeader: true }]);
+    setIngredientIds(p => [...p, mkId()]);
   };
 
   const removeIngredient = (index: number) => {
     if (ingredients.length > 1) {
-      setIngredients(ingredients.filter((_, i) => i !== index));
+      setIngredients(p => p.filter((_, i) => i !== index));
+      setIngredientIds(p => p.filter((_, i) => i !== index));
     }
   };
 
@@ -109,13 +188,25 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     setIngredients(updated);
   };
 
+  const handleIngredientDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = ingredientIds.indexOf(active.id as string);
+      const newIndex = ingredientIds.indexOf(over.id as string);
+      setIngredients(p => arrayMove(p, oldIndex, newIndex));
+      setIngredientIds(p => arrayMove(p, oldIndex, newIndex));
+    }
+  };
+
   const addInstruction = () => {
-    setInstructions([...instructions, '']);
+    setInstructions(p => [...p, '']);
+    setInstructionIds(p => [...p, mkId()]);
   };
 
   const removeInstruction = (index: number) => {
     if (instructions.length > 1) {
-      setInstructions(instructions.filter((_, i) => i !== index));
+      setInstructions(p => p.filter((_, i) => i !== index));
+      setInstructionIds(p => p.filter((_, i) => i !== index));
     }
   };
 
@@ -123,6 +214,16 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     const updated = [...instructions];
     updated[index] = value;
     setInstructions(updated);
+  };
+
+  const handleInstructionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = instructionIds.indexOf(active.id as string);
+      const newIndex = instructionIds.indexOf(over.id as string);
+      setInstructions(p => arrayMove(p, oldIndex, newIndex));
+      setInstructionIds(p => arrayMove(p, oldIndex, newIndex));
+    }
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -252,7 +353,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       const recipeData = {
         title,
         description: description || undefined,
-        ingredients: ingredients.filter(ing => ing.name && ing.quantity),
+        ingredients: ingredients.filter(ing => ing.isHeader ? ing.name.trim() : ing.name && ing.quantity),
         instructions: instructions.filter(inst => inst.trim()),
         prepTime: prepTime || undefined,
         cookTime: cookTime || undefined,
@@ -415,77 +516,52 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       {/* Ingredients */}
       <div className="mb-7">
         <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Ingredients</h3>
-        <div className="space-y-2">
-          {ingredients.map((ingredient, index) => (
-            <div key={index} className="flex gap-2 items-center">
-              <input
-                value={ingredient.name}
-                onChange={(e) => updateIngredient(index, 'name', e.target.value)}
-                placeholder="Ingredient name"
-                className="flex-1 px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
-              />
-              <input
-                value={ingredient.quantity}
-                onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
-                placeholder="Qty"
-                className="w-20 px-3 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
-              />
-              <input
-                value={ingredient.unit || ''}
-                onChange={(e) => updateIngredient(index, 'unit', e.target.value)}
-                placeholder="Unit"
-                className="w-20 px-3 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
-              />
-              <button
-                type="button"
-                onClick={() => removeIngredient(index)}
-                className="w-8 h-8 rounded-full border border-[#D4C0A8] bg-[#EEE0CC] flex items-center justify-center text-[#A07048] text-lg hover:border-[#C8956C] hover:bg-[#E0C8A8] transition-all flex-shrink-0"
-              >
-                ×
-              </button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleIngredientDragEnd}>
+          <SortableContext items={ingredientIds} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {ingredients.map((ingredient, index) => (
+                <SortableIngredientRow
+                  key={ingredientIds[index]}
+                  id={ingredientIds[index]}
+                  ingredient={ingredient}
+                  index={index}
+                  onUpdate={updateIngredient}
+                  onRemove={removeIngredient}
+                />
+              ))}
             </div>
-          ))}
+          </SortableContext>
+        </DndContext>
+        <div className="mt-3 flex gap-2">
+          <button type="button" onClick={addIngredient} className="inline-flex items-center gap-1.5 text-[13px] text-copper border border-dashed border-copper-light px-4 py-2 rounded-lg hover:bg-copper/5 hover:border-solid transition-all">
+            + Add ingredient
+          </button>
+          <button type="button" onClick={addIngredientHeader} className="inline-flex items-center gap-1.5 text-[13px] text-text-muted border border-dashed border-border px-4 py-2 rounded-lg hover:border-copper hover:text-copper transition-all">
+            + Add section
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={addIngredient}
-          className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-copper border border-dashed border-copper-light px-4 py-2 rounded-lg hover:bg-copper/5 hover:border-solid transition-all"
-        >
-          + Add ingredient
-        </button>
       </div>
 
       {/* Instructions */}
       <div className="mb-7">
         <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Instructions</h3>
-        <div className="space-y-2">
-          {instructions.map((instruction, index) => (
-            <div key={index} className="flex gap-2 items-start">
-              <span className="w-7 h-7 rounded-full bg-cream-dark flex items-center justify-center font-serif text-[13px] text-copper-dark flex-shrink-0 mt-2.5">
-                {index + 1}
-              </span>
-              <textarea
-                value={instruction}
-                onChange={(e) => updateInstruction(index, e.target.value)}
-                placeholder={`Step ${index + 1}...`}
-                rows={2}
-                className="flex-1 px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light resize-y leading-relaxed"
-              />
-              <button
-                type="button"
-                onClick={() => removeInstruction(index)}
-                className="w-8 h-8 rounded-full border border-[#D4C0A8] bg-[#EEE0CC] flex items-center justify-center text-[#A07048] text-lg hover:border-[#C8956C] hover:bg-[#E0C8A8] transition-all flex-shrink-0 mt-1"
-              >
-                ×
-              </button>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleInstructionDragEnd}>
+          <SortableContext items={instructionIds} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {instructions.map((instruction, index) => (
+                <SortableInstructionRow
+                  key={instructionIds[index]}
+                  id={instructionIds[index]}
+                  instruction={instruction}
+                  index={index}
+                  onUpdate={updateInstruction}
+                  onRemove={removeInstruction}
+                />
+              ))}
             </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={addInstruction}
-          className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-copper border border-dashed border-copper-light px-4 py-2 rounded-lg hover:bg-copper/5 hover:border-solid transition-all"
-        >
+          </SortableContext>
+        </DndContext>
+        <button type="button" onClick={addInstruction} className="mt-3 inline-flex items-center gap-1.5 text-[13px] text-copper border border-dashed border-copper-light px-4 py-2 rounded-lg hover:bg-copper/5 hover:border-solid transition-all">
           + Add step
         </button>
       </div>

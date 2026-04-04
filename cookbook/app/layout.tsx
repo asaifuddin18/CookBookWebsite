@@ -45,7 +45,7 @@ export default function RootLayout({
                 try {
                   const stored = localStorage.getItem('cookbook-theme');
                   const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const shouldBeDark = stored === 'dark' || (!stored && systemDark);
+                  const shouldBeDark = stored === 'light' ? false : true;
                   if (shouldBeDark) document.documentElement.classList.add('dark');
                 } catch (e) {}
               })();
