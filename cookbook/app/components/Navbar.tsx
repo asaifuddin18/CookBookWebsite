@@ -8,10 +8,10 @@ export default function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border" style={{ background: 'rgba(253,250,245,0.92)', backdropFilter: 'blur(12px)' }}>
+    <nav className="sticky top-0 z-50 border-b border-border bg-cream/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-5 lg:px-10 h-16 flex items-center justify-between">
-        <Link href="/" className="font-serif text-[22px] text-brown tracking-tight font-medium">
-          Cook<span className="text-copper">book</span>
+        <Link href="/" className="font-serif text-[22px] tracking-tight font-medium">
+          <span className="text-brown">Cook</span><span className="text-copper">book</span>
         </Link>
 
         <div className="flex items-center gap-3">

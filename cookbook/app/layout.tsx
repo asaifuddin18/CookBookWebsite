@@ -26,8 +26,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cookbook — Share & Discover Recipes",
-  description: "Discover, share, and save your favorite recipes. Build your personal collection and explore dishes from around the world.",
+  title: "The Saifuddin Family Cookbook",
+  description: "Our family's favorite recipes, all in one place.",
 };
 
 export default function RootLayout({

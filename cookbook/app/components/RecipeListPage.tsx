@@ -156,20 +156,17 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
   return (
     <div>
       {/* Hero */}
-      <div className="relative overflow-hidden text-center px-5 pt-14 pb-10" style={{ background: 'linear-gradient(180deg, #FDFAF5 0%, #F5EDE0 100%)' }}>
+      <div className="relative overflow-hidden text-center px-5 pt-14 pb-10" style={{ background: 'linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-dark) 100%)' }}>
         <div className="absolute -top-15 -right-15 w-[200px] h-[200px] rounded-full" style={{ background: 'rgba(200,149,108,0.06)' }} />
         <div className="absolute -bottom-10 -left-10 w-[160px] h-[160px] rounded-full" style={{ background: 'rgba(200,149,108,0.04)' }} />
 
         <div className="relative">
-          <span className="inline-block bg-brown text-cream text-[10px] tracking-[2.5px] uppercase font-medium px-3.5 py-1.5 rounded-sm mb-5">
-            Community Cookbook
-          </span>
-          <h1 className="font-serif text-[42px] md:text-[48px] text-brown leading-tight mb-3 tracking-tight">
-            Share &amp; discover<br />
-            <em className="text-copper not-italic italic">delicious</em> recipes
+<h1 className="font-serif text-[42px] md:text-[48px] text-brown leading-tight mb-3 tracking-tight">
+            The Saifuddin<br />
+            <em className="text-copper not-italic italic">Family</em> Cookbook
           </h1>
           <p className="text-[16px] text-text-muted max-w-[460px] mx-auto mb-7 leading-relaxed font-light">
-            A warm community space for family favorites, weeknight dinners, and weekend baking adventures.
+            Our family's favorite recipes, all in one place.
           </p>
 
           <form onSubmit={handleSearchSubmit} className="max-w-[500px] mx-auto">
@@ -270,7 +267,7 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
 
       {/* Footer */}
       <footer className="border-t border-border px-5 lg:px-10 py-8 flex justify-between items-center text-[13px] text-text-light">
-        <span>Cookbook &copy; 2026 — Saifuddins</span>
+        <span>The Saifuddin Family Cookbook &copy; 2026</span>
       </footer>
     </div>
   );
