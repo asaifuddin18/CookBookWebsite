@@ -6,7 +6,9 @@ Ideas and enhancements to revisit later.
 
 When adding or editing a recipe, add an "Estimate macros" button that sends the ingredients list to the Claude API (Haiku model — fractions of a cent per request) and returns estimated protein/carbs/fat per serving. The author can then review and adjust before saving. Calories would auto-calculate as usual (protein×4 + carbs×4 + fat×9).
 
-**Why deferred:** Manual entry works fine for now. AI estimation adds an API key dependency and per-request cost, even if small.
+**Why deferred:** Manual entry works fine for now. AI estimation adds per-request cost, even if small.
+
+**Implementation note:** Use AWS Bedrock (`@aws-sdk/client-bedrock-runtime`) to invoke Claude — consistent with the existing AWS setup, billed through the same AWS account, and the `cookbook-app` IAM user just needs `bedrock:InvokeModel` added to its policy.
 
 ## Comments and ratings
 
@@ -33,7 +35,7 @@ On the "Add recipe" page, provide an import option with three input modes:
 
 In all cases Claude populates title, description, ingredients, instructions, times, servings, etc. and the author reviews and edits before saving.
 
-**Why deferred:** Requires Claude API integration, file handling (passing image/PDF bytes), and server-side URL fetching. Good candidate to build alongside the AI macro estimation feature.
+**Why deferred:** Requires file handling (passing image/PDF bytes to Bedrock) and server-side URL fetching. Good candidate to build alongside the AI macro estimation feature.
 
 ## Print view
 

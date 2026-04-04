@@ -2,8 +2,9 @@ import { z } from 'zod';
 
 export const ingredientSchema = z.object({
   name: z.string().min(1, 'Ingredient name is required'),
-  quantity: z.string().min(1, 'Quantity is required'),
+  quantity: z.string(),
   unit: z.string().optional(),
+  isHeader: z.boolean().optional(),
 });
 
 export const recipeSchema = z.object({

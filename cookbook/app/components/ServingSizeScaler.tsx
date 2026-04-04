@@ -72,6 +72,13 @@ export default function ServingSizeScaler({ ingredients, defaultServings }: Prop
       {/* Scaled ingredients */}
       <ul>
         {ingredients.map((ingredient, index) => {
+          if (ingredient.isHeader) {
+            return (
+              <li key={index} className="pt-4 pb-1 first:pt-0">
+                <span className="text-[11px] font-semibold text-copper-dark uppercase tracking-widest">{ingredient.name}</span>
+              </li>
+            );
+          }
           const parsed = parseQuantity(ingredient.quantity);
           const scaled = parsed > 0 ? formatQuantity(parsed * ratio) : ingredient.quantity;
           return (
