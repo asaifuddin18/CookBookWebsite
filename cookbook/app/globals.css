@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-source-sans);
@@ -64,23 +64,33 @@
 
 .dark {
   --background: #1E1810;
-  --foreground: #F5EDE0;
+  --foreground: #F0E4D0;
   --card: #2A2118;
-  --card-foreground: #F5EDE0;
+  --card-foreground: #F0E4D0;
   --popover: #2A2118;
-  --popover-foreground: #F5EDE0;
+  --popover-foreground: #F0E4D0;
   --primary: #C8956C;
   --primary-foreground: #FFFFFF;
   --secondary: #352920;
-  --secondary-foreground: #F5EDE0;
+  --secondary-foreground: #F0E4D0;
   --muted: #352920;
-  --muted-foreground: #A89A8A;
+  --muted-foreground: #C0B0A0;
   --accent: #352920;
-  --accent-foreground: #F5EDE0;
+  --accent-foreground: #F0E4D0;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
   --ring: #C8956C;
+
+  /* Custom color tokens — override for dark mode */
+  --color-cream: #1A1410;
+  --color-cream-dark: #251C14;
+  --color-brown: #F5EAD8;
+  --color-brown-light: #D4C0A8;
+  --color-text-muted: #C8B49A;
+  --color-text-light: #A89280;
+  --color-border: oklch(1 0 0 / 14%);
+  --color-copper-dark: #D4A070;
 }
 
 @layer base {
