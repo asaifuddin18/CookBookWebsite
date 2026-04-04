@@ -87,9 +87,14 @@ export default async function RecipeDetailPage({
         </div>
       </div>
 
-      {/* Emoji image */}
-      <div className="w-full h-[280px] md:h-[320px] rounded-[14px] flex items-center justify-center text-[80px] mb-8" style={{ background: cardBg }}>
-        {emoji}
+      {/* Hero image */}
+      <div className="w-full h-[280px] md:h-[320px] rounded-[14px] overflow-hidden mb-8" style={{ background: cardBg }}>
+        {recipe.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[80px]">{emoji}</div>
+        )}
       </div>
 
       {/* Time stats row */}

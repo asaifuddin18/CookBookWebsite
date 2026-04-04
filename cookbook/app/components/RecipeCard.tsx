@@ -52,9 +52,18 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
     <Link href={`/recipes/${recipe.recipeId}`} className="group block rounded-[14px] overflow-hidden bg-card border border-border hover:border-copper-light hover:-translate-y-[3px] hover:shadow-lg transition-all duration-250">
       {/* Image area */}
       <div className="h-[180px] relative overflow-hidden" style={{ background: cardBg }}>
-        <div className="w-full h-full flex items-center justify-center text-[52px] group-hover:scale-105 transition-transform duration-250">
-          {emoji}
-        </div>
+        {recipe.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={recipe.imageUrl}
+            alt={recipe.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-250"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[52px] group-hover:scale-105 transition-transform duration-250">
+            {emoji}
+          </div>
+        )}
         {diffStyle && (
           <span className="absolute top-3 left-3 text-[11px] font-medium px-3 py-1 rounded" style={{ background: diffStyle.bg, color: diffStyle.color, letterSpacing: '0.5px' }}>
             {recipe.difficulty}

@@ -19,6 +19,7 @@ export const recipeSchema = z.object({
   difficulty: z.enum(['Easy', 'Medium', 'Hard']).optional(),
   cuisine: z.enum(['American', 'Indian', 'Thai', 'Italian', 'Chinese', 'Korean', 'Mexican', 'Other']).optional(),
   tags: z.array(z.string()).optional(),
+  imageUrl: z.string().url().optional(),
 });
 
 export type RecipeFormData = z.infer<typeof recipeSchema>;

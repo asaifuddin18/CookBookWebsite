@@ -1,0 +1,64 @@
+{
+  "/CookbookStack/RecipesTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "RecipesTable058A1F33"
+      }
+    }
+  ],
+  "/CookbookStack/TableName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TableName"
+    }
+  ],
+  "/CookbookStack/BucketName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BucketName"
+    }
+  ],
+  "/CookbookStack/Region": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Region"
+    }
+  ],
+  "/CookbookStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/CookbookStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/CookbookStack/RecipesTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RecipesTable058A1F33"
+    }
+  ],
+  "/CookbookStack/RecipeImagesBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RecipeImagesBucket12039CEC"
+    }
+  ],
+  "/CookbookStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/CookbookStack/RecipeImagesBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RecipeImagesBucketPolicyD4BC95EE"
+    }
+  ]
+}

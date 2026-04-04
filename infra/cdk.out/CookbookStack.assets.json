@@ -1,0 +1,21 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "a3464218251b7ed3fd0cfab9b3fc8efb1463e1f0149743bf4843a3534d1d0e44": {
+      "displayName": "CookbookStack Template",
+      "source": {
+        "path": "CookbookStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "664658497880-us-east-1-cbcd2816": {
+          "bucketName": "cdk-hnb659fds-assets-664658497880-us-east-1",
+          "objectKey": "a3464218251b7ed3fd0cfab9b3fc8efb1463e1f0149743bf4843a3534d1d0e44.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::664658497880:role/cdk-hnb659fds-file-publishing-role-664658497880-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

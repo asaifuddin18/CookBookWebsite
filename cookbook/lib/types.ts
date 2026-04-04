@@ -18,6 +18,7 @@ export interface Recipe {
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
   tags?: string[];
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
 }

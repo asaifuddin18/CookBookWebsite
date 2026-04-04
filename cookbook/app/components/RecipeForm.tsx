@@ -19,6 +19,7 @@ interface RecipeFormProps {
     difficulty?: 'Easy' | 'Medium' | 'Hard';
     cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Other';
     tags?: string[];
+    imageUrl?: string;
   };
 }
 
@@ -52,6 +53,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [tags, setTags] = useState(
     initialRecipe?.tags ? initialRecipe.tags.join(', ') : ''
   );
+  const [imageUrl, setImageUrl] = useState(initialRecipe?.imageUrl || '');
+  const [imagePreview, setImagePreview] = useState(initialRecipe?.imageUrl || '');
+  const [imageUploading, setImageUploading] = useState(false);
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -85,6 +89,29 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     setInstructions(updated);
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImagePreview(URL.createObjectURL(file));
+    setImageUploading(true);
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      });
+      const { uploadUrl, imageUrl: uploadedUrl } = await res.json();
+      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      setImageUrl(uploadedUrl);
+    } catch {
+      setError('Image upload failed. Please try again.');
+      setImagePreview(imageUrl);
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
   const toggleMealType = (type: 'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack') => {
     setMealType(prev =>
       prev.includes(type)
@@ -112,6 +139,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         difficulty: difficulty || undefined,
         cuisine: cuisine || undefined,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t) : undefined,
+        imageUrl: imageUrl || undefined,
       };
 
       const url = isEditMode ? `/api/recipes/${recipeId}` : '/api/recipes';
@@ -184,6 +212,40 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               placeholder="A short description of your recipe..."
               className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light resize-y leading-relaxed"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Photo */}
+      <div className="mb-7">
+        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Photo</h3>
+        <div className="flex gap-4 items-start">
+          {imagePreview ? (
+            <div className="relative w-[120px] h-[100px] rounded-lg overflow-hidden flex-shrink-0 border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+              {imageUploading && (
+                <div className="absolute inset-0 bg-white/70 flex items-center justify-center text-[12px] text-copper font-medium">
+                  Uploading...
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="w-[120px] h-[100px] rounded-lg border-[1.5px] border-dashed border-border bg-cream flex items-center justify-center text-[28px] flex-shrink-0">
+              📷
+            </div>
+          )}
+          <div>
+            <label className="inline-flex items-center gap-2 cursor-pointer bg-white border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors">
+              {imagePreview ? 'Change photo' : 'Upload photo'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+            <p className="text-[12px] text-text-light mt-2">JPG, PNG or WebP. Max 5MB.</p>
           </div>
         </div>
       </div>

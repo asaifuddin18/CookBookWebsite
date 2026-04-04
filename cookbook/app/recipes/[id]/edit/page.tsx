@@ -27,6 +27,7 @@ export default async function EditRecipePage({
     difficulty: recipe.difficulty,
     cuisine: recipe.cuisine,
     tags: recipe.tags,
+    imageUrl: recipe.imageUrl,
   };
 
   return (
