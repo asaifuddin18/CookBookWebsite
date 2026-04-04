@@ -9,7 +9,7 @@ export const ingredientSchema = z.object({
 export const recipeSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
   description: z.string().max(500, 'Description must be less than 500 characters').optional(),
-  author: z.string().min(1, 'Author is required').max(50, 'Author name must be less than 50 characters'),
+  author: z.string().max(50).optional(),
   ingredients: z.array(ingredientSchema).min(1, 'At least one ingredient is required'),
   instructions: z.array(z.string().min(1, 'Instruction cannot be empty')).min(1, 'At least one instruction is required'),
   prepTime: z.number().min(0, 'Prep time cannot be negative').optional(),

@@ -9,7 +9,6 @@ interface RecipeFormProps {
   initialRecipe?: {
     title: string;
     description?: string;
-    author: string;
     ingredients: Ingredient[];
     instructions: string[];
     prepTime?: number;
@@ -31,7 +30,6 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
 
   const [title, setTitle] = useState(initialRecipe?.title || '');
   const [description, setDescription] = useState(initialRecipe?.description || '');
-  const [author, setAuthor] = useState(initialRecipe?.author || '');
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     initialRecipe?.ingredients || [{ name: '', quantity: '', unit: '' }]
   );
@@ -130,7 +128,6 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       const recipeData = {
         title,
         description: description || undefined,
-        author,
         ingredients: ingredients.filter(ing => ing.name && ing.quantity),
         instructions: instructions.filter(inst => inst.trim()),
         prepTime: prepTime || undefined,
@@ -189,18 +186,6 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               onChange={(e) => setTitle(e.target.value)}
               required
               placeholder="e.g., Grandma's chocolate chip cookies"
-              className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
-            />
-          </div>
-          <div>
-            <label className="block text-[13px] text-text-muted font-medium mb-1.5">
-              Author <span className="text-copper">*</span>
-            </label>
-            <input
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              required
-              placeholder="Your name"
               className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
             />
           </div>

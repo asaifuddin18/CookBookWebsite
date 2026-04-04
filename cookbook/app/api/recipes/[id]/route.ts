@@ -58,7 +58,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
     }
 
-    const updatedRecipe = await updateRecipe(id, validationResult.data);
+    if (existingRecipe.authorEmail && existingRecipe.authorEmail !== session.user?.email) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { author, authorEmail, authorImage, ...updateData } = validationResult.data as typeof validationResult.data & { author?: string; authorEmail?: string; authorImage?: string };
+    void author; void authorEmail; void authorImage;
+    const updatedRecipe = await updateRecipe(id, updateData);
     return NextResponse.json(updatedRecipe, { status: 200 });
   } catch (error) {
     console.error('Error updating recipe:', error);
@@ -84,6 +90,11 @@ export async function DELETE(
     if (!existing) {
       return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
     }
+
+    if (existing.authorEmail && existing.authorEmail !== session.user?.email) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     await deleteRecipe(id);
     return new NextResponse(null, { status: 204 });
   } catch (error) {

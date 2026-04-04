@@ -44,6 +44,9 @@ export async function POST(request: NextRequest) {
     const recipe: Recipe = {
       recipeId: uuidv4(),
       ...validationResult.data,
+      author: session.user?.name || 'Unknown',
+      authorEmail: session.user?.email || undefined,
+      authorImage: session.user?.image || undefined,
       createdAt: now,
       updatedAt: now,
     };

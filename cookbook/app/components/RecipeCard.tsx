@@ -92,9 +92,14 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
       {/* Footer */}
       <div className="flex justify-between items-center px-[18px] py-3 border-t border-border">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-cream-dark flex items-center justify-center text-[10px] font-semibold text-copper-dark">
-            {authorInitial}
-          </div>
+          {recipe.authorImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={recipe.authorImage} alt={recipe.author} className="w-6 h-6 rounded-full border border-border" />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-cream-dark flex items-center justify-center text-[10px] font-semibold text-copper-dark">
+              {authorInitial}
+            </div>
+          )}
           <span className="text-[12px] text-text-muted">by {recipe.author}</span>
         </div>
         {totalTime > 0 && (

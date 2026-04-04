@@ -9,6 +9,8 @@ export interface Recipe {
   title: string;
   description?: string;
   author: string;
+  authorEmail?: string;
+  authorImage?: string;
   ingredients: Ingredient[];
   instructions: string[];
   prepTime?: number;

@@ -18,6 +18,7 @@ export default async function RecipeDetailPage({
 
   if (!recipe) notFound();
 
+  const isAuthor = !!session && (!recipe.authorEmail || recipe.authorEmail === session.user?.email);
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const authorInitial = recipe.author.charAt(0).toUpperCase();
 
@@ -66,9 +67,14 @@ export default async function RecipeDetailPage({
         <h1 className="font-serif text-[36px] md:text-[42px] text-brown-light leading-tight mb-4">{recipe.title}</h1>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-full bg-cream-dark flex items-center justify-center text-[12px] font-semibold text-copper-dark">
-            {authorInitial}
-          </div>
+          {recipe.authorImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={recipe.authorImage} alt={recipe.author} className="w-8 h-8 rounded-full border border-border" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-cream-dark flex items-center justify-center text-[12px] font-semibold text-copper-dark">
+              {authorInitial}
+            </div>
+          )}
           <div>
             <span className="block text-[14px] text-brown font-medium">{recipe.author}</span>
             <span className="text-[12px] text-text-light">Added {new Date(recipe.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
@@ -82,7 +88,7 @@ export default async function RecipeDetailPage({
         )}
 
         <div className="flex gap-3 items-center">
-          {session && (
+          {isAuthor && (
             <Link
               href={`/recipes/${recipe.recipeId}/edit`}
               className="inline-flex items-center gap-1.5 bg-copper hover:bg-copper-dark text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all hover:-translate-y-px"
@@ -92,7 +98,7 @@ export default async function RecipeDetailPage({
             </Link>
           )}
           <CopyLinkButton />
-          {session && <DeleteRecipeButton recipeId={recipe.recipeId} />}
+          {isAuthor && <DeleteRecipeButton recipeId={recipe.recipeId} />}
         </div>
       </div>
 

@@ -17,7 +17,6 @@ export default async function EditRecipePage({
   const initialRecipe = {
     title: recipe.title,
     description: recipe.description,
-    author: recipe.author,
     ingredients: recipe.ingredients,
     instructions: recipe.instructions,
     prepTime: recipe.prepTime,
