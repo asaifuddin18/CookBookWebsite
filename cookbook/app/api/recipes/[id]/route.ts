@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRecipe, updateRecipe } from '@/lib/dynamodb';
+import { getRecipe, updateRecipe, deleteRecipe } from '@/lib/dynamodb';
 import { recipeSchema } from '@/lib/validation';
 
 export async function GET(
@@ -59,5 +59,23 @@ export async function PUT(
       { error: 'Failed to update recipe' },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const existing = await getRecipe(id);
+    if (!existing) {
+      return NextResponse.json({ error: 'Recipe not found' }, { status: 404 });
+    }
+    await deleteRecipe(id);
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
+    return NextResponse.json({ error: 'Failed to delete recipe' }, { status: 500 });
   }
 }

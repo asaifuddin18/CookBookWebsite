@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
 import { ArrowLeft, ChefHat } from 'lucide-react';
+import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
 
 export default async function RecipeDetailPage({
   params,
@@ -76,7 +77,7 @@ export default async function RecipeDetailPage({
           </p>
         )}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <Link
             href={`/recipes/${recipe.recipeId}/edit`}
             className="inline-flex items-center gap-1.5 bg-copper hover:bg-copper-dark text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all hover:-translate-y-px"
@@ -84,6 +85,7 @@ export default async function RecipeDetailPage({
             <ChefHat size={14} />
             Edit recipe
           </Link>
+          <DeleteRecipeButton recipeId={recipe.recipeId} />
         </div>
       </div>
 
