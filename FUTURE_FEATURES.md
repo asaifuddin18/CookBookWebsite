@@ -26,9 +26,14 @@ At the bottom of a recipe page, show 2–3 recipes with the same cuisine or meal
 
 ## Recipe import from photo or document
 
-On the "Add recipe" page, provide an option to upload a photo or document (image of a handwritten recipe card, a PDF, a screenshot, etc.) and have Claude extract and populate all the recipe fields automatically — title, description, ingredients, instructions, times, servings, and so on. The author reviews and edits before saving.
+On the "Add recipe" page, provide an import option with three input modes:
 
-**Why deferred:** Requires Claude API integration and file handling (passing image/PDF bytes to the API). Good candidate to build alongside the AI macro estimation feature.
+1. **Photo or document** — upload an image of a handwritten recipe card, a PDF, or a screenshot and have Claude extract all fields.
+2. **URL** — paste a link to any recipe website and have Claude fetch and parse the page content into recipe fields.
+
+In all cases Claude populates title, description, ingredients, instructions, times, servings, etc. and the author reviews and edits before saving.
+
+**Why deferred:** Requires Claude API integration, file handling (passing image/PDF bytes), and server-side URL fetching. Good candidate to build alongside the AI macro estimation feature.
 
 ## Print view
 
