@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAllRecipes, putRecipe } from '@/lib/dynamodb';
 import { recipeSchema } from '@/lib/validation';
 import { Recipe } from '@/lib/types';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -18,6 +20,11 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 

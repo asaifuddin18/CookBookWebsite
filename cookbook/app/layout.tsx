@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { SearchProvider } from "./components/SearchProvider";
+import Providers from "./components/Providers";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -53,12 +54,14 @@ export default function RootLayout({
         />
       </head>
       <body className={`${playfair.variable} ${sourceSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider>
-          <SearchProvider>
-            <Navbar />
-            {children}
-          </SearchProvider>
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider>
+            <SearchProvider>
+              <Navbar />
+              {children}
+            </SearchProvider>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

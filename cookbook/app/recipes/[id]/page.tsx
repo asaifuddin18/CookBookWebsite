@@ -5,6 +5,8 @@ import { ArrowLeft, ChefHat } from 'lucide-react';
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
 import ServingSizeScaler from '@/app/components/ServingSizeScaler';
 import CopyLinkButton from '@/app/components/CopyLinkButton';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export default async function RecipeDetailPage({
   params,
@@ -12,7 +14,7 @@ export default async function RecipeDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const recipe = await getRecipe(id);
+  const [recipe, session] = await Promise.all([getRecipe(id), getServerSession(authOptions)]);
 
   if (!recipe) notFound();
 
@@ -80,15 +82,17 @@ export default async function RecipeDetailPage({
         )}
 
         <div className="flex gap-3 items-center">
-          <Link
-            href={`/recipes/${recipe.recipeId}/edit`}
-            className="inline-flex items-center gap-1.5 bg-copper hover:bg-copper-dark text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all hover:-translate-y-px"
-          >
-            <ChefHat size={14} />
-            Edit recipe
-          </Link>
+          {session && (
+            <Link
+              href={`/recipes/${recipe.recipeId}/edit`}
+              className="inline-flex items-center gap-1.5 bg-copper hover:bg-copper-dark text-white text-[13px] font-medium px-4 py-2 rounded-lg transition-all hover:-translate-y-px"
+            >
+              <ChefHat size={14} />
+              Edit recipe
+            </Link>
+          )}
           <CopyLinkButton />
-          <DeleteRecipeButton recipeId={recipe.recipeId} />
+          {session && <DeleteRecipeButton recipeId={recipe.recipeId} />}
         </div>
       </div>
 
