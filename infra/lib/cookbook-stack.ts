@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
@@ -38,7 +39,40 @@ export class CookbookStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
-    // Outputs — copy these values into cookbook/.env.local
+    // IAM user with least-privilege access for the Next.js app
+    const appUser = new iam.User(this, 'CookbookAppUser', {
+      userName: 'cookbook-app',
+    });
+
+    appUser.attachInlinePolicy(new iam.Policy(this, 'CookbookAppPolicy', {
+      statements: [
+        // DynamoDB — only the exact operations the app performs
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'dynamodb:GetItem',
+            'dynamodb:PutItem',
+            'dynamodb:UpdateItem',
+            'dynamodb:DeleteItem',
+            'dynamodb:Scan',
+          ],
+          resources: [table.tableArn],
+        }),
+        // S3 — only PutObject under images/ prefix (for pre-signed upload URLs)
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:PutObject'],
+          resources: [`${imageBucket.bucketArn}/images/*`],
+        }),
+      ],
+    }));
+
+    // Access key — stored in CloudFormation outputs
+    const accessKey = new iam.CfnAccessKey(this, 'CookbookAppAccessKey', {
+      userName: appUser.userName,
+    });
+
+    // Outputs
     new cdk.CfnOutput(this, 'TableName', {
       value: table.tableName,
       description: 'DYNAMODB_TABLE_NAME',
@@ -52,6 +86,16 @@ export class CookbookStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'Region', {
       value: this.region,
       description: 'AWS_REGION',
+    });
+
+    new cdk.CfnOutput(this, 'AppAccessKeyId', {
+      value: accessKey.ref,
+      description: 'AWS_ACCESS_KEY_ID — replace in cookbook/.env.local',
+    });
+
+    new cdk.CfnOutput(this, 'AppSecretAccessKey', {
+      value: accessKey.attrSecretAccessKey,
+      description: 'AWS_SECRET_ACCESS_KEY — replace in cookbook/.env.local',
     });
   }
 }
