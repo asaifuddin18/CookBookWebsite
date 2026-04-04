@@ -103,6 +103,17 @@ export class CookbookStack extends cdk.Stack {
       userName: appUser.userName,
     });
 
+    // IAM user for CDK deployments
+    const cdkUser = new iam.User(this, 'CookbookCdkUser', {
+      userName: 'cookbook-cdk',
+    });
+
+    cdkUser.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
+
+    const cdkAccessKey = new iam.CfnAccessKey(this, 'CookbookCdkAccessKey', {
+      userName: cdkUser.userName,
+    });
+
     // Outputs
     new cdk.CfnOutput(this, 'TableName', {
       value: table.tableName,
@@ -132,6 +143,16 @@ export class CookbookStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'AppSecretAccessKey', {
       value: accessKey.attrSecretAccessKey,
       description: 'AWS_SECRET_ACCESS_KEY — replace in cookbook/.env.local',
+    });
+
+    new cdk.CfnOutput(this, 'CdkAccessKeyId', {
+      value: cdkAccessKey.ref,
+      description: 'CDK_AWS_ACCESS_KEY_ID',
+    });
+
+    new cdk.CfnOutput(this, 'CdkSecretAccessKey', {
+      value: cdkAccessKey.attrSecretAccessKey,
+      description: 'CDK_AWS_SECRET_ACCESS_KEY',
     });
   }
 }
