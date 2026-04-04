@@ -103,12 +103,12 @@
   .dark input,
   .dark textarea,
   .dark select {
-    background-color: #251C14;
-    color: #F5EAD8;
-    border-color: rgba(255, 255, 255, 0.12);
+    background-color: #251C14 !important;
+    color: #F5EAD8 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
   }
   .dark input::placeholder,
   .dark textarea::placeholder {
-    color: #6A5A4A;
+    color: #6A5A4A !important;
   }
 }
