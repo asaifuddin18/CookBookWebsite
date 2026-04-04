@@ -54,7 +54,7 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
   };
 
   return (
-    <Link href={`/recipes/${recipe.recipeId}`} className="group block rounded-[14px] overflow-hidden bg-card border border-border hover:border-copper-light hover:-translate-y-[3px] hover:shadow-lg transition-all duration-250">
+    <Link href={`/recipes/${recipe.recipeId}`} className="group flex flex-col rounded-[14px] overflow-hidden bg-card border border-border hover:border-copper-light hover:-translate-y-[3px] hover:shadow-lg transition-all duration-250">
       {/* Image area */}
       <div className="h-[180px] relative overflow-hidden" style={{ background: cardBg }}>
         {recipe.imageUrl ? (
@@ -82,13 +82,15 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
       </div>
 
       {/* Body */}
-      <div className="px-[18px] pt-4 pb-3">
-        <h3 className="font-serif text-[18px] text-brown leading-snug mb-1">{recipe.title}</h3>
-        {recipe.description && (
-          <p className="text-[13px] text-text-muted leading-relaxed line-clamp-2 mb-3">{recipe.description}</p>
-        )}
+      <div className="flex-1 flex flex-col px-[18px] pt-4 pb-3">
+        <div className="flex-1">
+          <h3 className="font-serif text-[18px] text-brown leading-snug mb-1">{recipe.title}</h3>
+          {recipe.description && (
+            <p className="text-[13px] text-text-muted leading-relaxed line-clamp-2">{recipe.description}</p>
+          )}
+        </div>
         {(recipe.mealType?.length || recipe.cuisine) && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 mt-3">
             {recipe.mealType?.map((type) => (
               <span key={type} className="text-[11px] bg-cream-dark text-text-muted px-2.5 py-0.5 rounded-full">{type}</span>
             ))}
@@ -99,7 +101,8 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
         )}
       </div>
 
-      {/* Macros */}
+      {/* Macros + Footer — always at bottom */}
+      <div>
       {(recipe.protein || recipe.carbs || recipe.fat) && (
         <div className="px-[18px] pb-3 flex gap-3">
           {(() => {
@@ -131,6 +134,7 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
             {formatTime(totalTime)}
           </div>
         )}
+      </div>
       </div>
     </Link>
   );

@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:aws.amazon.com)",
+      "WebSearch",
+      "WebFetch(domain:pricepertoken.com)",
+      "WebFetch(domain:go-cloud.io)",
+      "WebFetch(domain:pecollective.com)",
+      "WebFetch(domain:cloudburn.io)"
     ]
   }
 }

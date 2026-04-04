@@ -58,7 +58,6 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
         r.author.toLowerCase().includes(term) ||
         r.mealType?.some(m => m.toLowerCase().includes(term)) ||
         r.ingredients.some(i => i.name.toLowerCase().includes(term)) ||
-        r.tags?.some(t => t.toLowerCase().includes(term)) ||
         r.cuisine?.toLowerCase().includes(term) ||
         r.difficulty?.toLowerCase().includes(term)
       );

@@ -204,17 +204,6 @@ export default async function RecipeDetailPage({
 
       </div>
 
-      {/* Tags */}
-      {recipe.tags && recipe.tags.length > 0 && (
-        <div className="mb-6">
-          <h2 className="font-serif text-[22px] text-brown-light font-normal mb-4 pb-2 border-b border-border">Tags</h2>
-          <div className="flex flex-wrap gap-2">
-            {recipe.tags.map((tag, index) => (
-              <span key={index} className="text-[12px] bg-cream-dark text-text-muted px-3.5 py-1.5 rounded-full">{tag}</span>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

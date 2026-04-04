@@ -48,7 +48,6 @@ interface RecipeFormProps {
     mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
     difficulty?: 'Easy' | 'Medium' | 'Hard';
     cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
-    tags?: string[];
     imageUrl?: string;
     protein?: number;
     carbs?: number;
@@ -145,9 +144,6 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   );
   const [cuisine, setCuisine] = useState<'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other' | ''>(
     initialRecipe?.cuisine || ''
-  );
-  const [tags, setTags] = useState(
-    initialRecipe?.tags ? initialRecipe.tags.join(', ') : ''
   );
   const [imageUrl, setImageUrl] = useState(initialRecipe?.imageUrl || '');
   const [imagePreview, setImagePreview] = useState(initialRecipe?.imageUrl || '');
@@ -301,7 +297,6 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     setMealType(data.mealType || []);
     setDifficulty(data.difficulty || '');
     setCuisine(data.cuisine || '');
-    setTags(data.tags ? data.tags.join(', ') : '');
     setImportSuccess(true);
     setImportError(null);
   };
@@ -366,7 +361,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         mealType: mealType.length > 0 ? mealType : undefined,
         difficulty: difficulty || undefined,
         cuisine: cuisine || undefined,
-        tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t) : undefined,
+
         imageUrl: imageUrl || undefined,
         protein: protein !== '' ? protein : undefined,
         carbs: carbs !== '' ? carbs : undefined,
@@ -682,20 +677,6 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               {type}
             </button>
           ))}
-        </div>
-      </div>
-
-      {/* Tags */}
-      <div className="mb-7">
-        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Tags</h3>
-        <div>
-          <label className="block text-[13px] text-text-muted font-medium mb-1.5">Tags (comma-separated)</label>
-          <input
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="e.g., comfort food, quick, vegetarian"
-            className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
-          />
         </div>
       </div>
 

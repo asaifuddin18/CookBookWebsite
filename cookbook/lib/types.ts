@@ -20,7 +20,6 @@ export interface Recipe {
   mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
   cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
-  tags?: string[];
   imageUrl?: string;
   protein?: number;
   carbs?: number;
