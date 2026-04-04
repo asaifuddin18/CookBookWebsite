@@ -19,6 +19,17 @@ export class CookbookStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
+    // DynamoDB table for user favorites
+    const favoritesTable = new dynamodb.Table(this, 'FavoritesTable', {
+      tableName: 'cookbook-favorites',
+      partitionKey: {
+        name: 'userId',
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
     // S3 bucket for recipe images — public read, pre-signed URL uploads
     const imageBucket = new s3.Bucket(this, 'RecipeImagesBucket', {
       blockPublicAccess: new s3.BlockPublicAccess({
@@ -46,7 +57,7 @@ export class CookbookStack extends cdk.Stack {
 
     appUser.attachInlinePolicy(new iam.Policy(this, 'CookbookAppPolicy', {
       statements: [
-        // DynamoDB — only the exact operations the app performs
+        // DynamoDB — recipes table
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           actions: [
@@ -57,6 +68,15 @@ export class CookbookStack extends cdk.Stack {
             'dynamodb:Scan',
           ],
           resources: [table.tableArn],
+        }),
+        // DynamoDB — favorites table
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'dynamodb:GetItem',
+            'dynamodb:UpdateItem',
+          ],
+          resources: [favoritesTable.tableArn],
         }),
         // S3 — PutObject and DeleteObject under images/ prefix
         new iam.PolicyStatement({
@@ -76,6 +96,11 @@ export class CookbookStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'TableName', {
       value: table.tableName,
       description: 'DYNAMODB_TABLE_NAME',
+    });
+
+    new cdk.CfnOutput(this, 'FavoritesTableName', {
+      value: favoritesTable.tableName,
+      description: 'DYNAMODB_FAVORITES_TABLE_NAME',
     });
 
     new cdk.CfnOutput(this, 'BucketName', {

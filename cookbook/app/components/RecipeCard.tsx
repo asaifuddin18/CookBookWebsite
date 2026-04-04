@@ -1,9 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { Recipe } from '@/lib/types';
 import { Clock } from 'lucide-react';
+import FavoriteButton from './FavoriteButton';
 
 interface RecipeCardProps {
   recipe: Recipe;
+  isFavorited: boolean;
+  onToggleFavorite: (recipeId: string) => void;
 }
 
 const CARD_BACKGROUNDS = ['#F0E0CC', '#E0CCBA', '#CCE0D4', '#E8D0D0', '#D4E0CC', '#E0D4C6', '#CCE0E8', '#E0D0E8'];
@@ -34,7 +39,7 @@ const DIFFICULTY_STYLES: Record<string, { bg: string; color: string }> = {
   Hard: { bg: '#FAECE7', color: '#C04020' },
 };
 
-export default function RecipeCard({ recipe }: RecipeCardProps) {
+export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: RecipeCardProps) {
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const emoji = getEmoji(recipe);
   const cardBg = getCardBg(recipe.recipeId);
@@ -69,6 +74,11 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
             {recipe.difficulty}
           </span>
         )}
+        <FavoriteButton
+          recipeId={recipe.recipeId}
+          isFavorited={isFavorited}
+          onToggle={onToggleFavorite}
+        />
       </div>
 
       {/* Body */}

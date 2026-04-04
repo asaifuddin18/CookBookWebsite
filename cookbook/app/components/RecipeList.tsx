@@ -3,9 +3,11 @@ import RecipeCard from './RecipeCard';
 
 interface RecipeListProps {
   recipes: Recipe[];
+  favorites: Set<string>;
+  onToggleFavorite: (recipeId: string) => void;
 }
 
-export default function RecipeList({ recipes }: RecipeListProps) {
+export default function RecipeList({ recipes, favorites, onToggleFavorite }: RecipeListProps) {
   if (recipes.length === 0) {
     return (
       <div className="text-center py-16">
@@ -19,7 +21,12 @@ export default function RecipeList({ recipes }: RecipeListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       {recipes.map((recipe) => (
-        <RecipeCard key={recipe.recipeId} recipe={recipe} />
+        <RecipeCard
+          key={recipe.recipeId}
+          recipe={recipe}
+          isFavorited={favorites.has(recipe.recipeId)}
+          onToggleFavorite={onToggleFavorite}
+        />
       ))}
     </div>
   );

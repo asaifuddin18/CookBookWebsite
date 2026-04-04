@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { Recipe } from '@/lib/types';
 import RecipeList from './RecipeList';
 import { useSearch } from './SearchProvider';
+import { useFavorites } from '@/lib/useFavorites';
 
 interface RecipeListPageProps {
   initialRecipes: Recipe[];
@@ -13,6 +15,8 @@ const MEAL_FILTERS = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'];
 const CUISINE_FILTERS = ['American', 'Italian', 'Mexican', 'Indian', 'Japanese', 'Thai', 'Chinese', 'Korean'];
 
 export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) {
+  const { data: session } = useSession();
+  const { favorites, toggle: toggleFavorite } = useFavorites(session?.user?.email);
   const { searchQuery, setSearchQuery } = useSearch();
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [activeFilter, setActiveFilter] = useState<string>('All');
@@ -22,6 +26,7 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
 
   const filterCounts: Record<string, number> = {
     All: initialRecipes.length,
+    Favorites: initialRecipes.filter(r => favorites.has(r.recipeId)).length,
     ...Object.fromEntries(MEAL_FILTERS.map(f => [f, initialRecipes.filter(r => r.mealType?.includes(f as never)).length])),
     ...Object.fromEntries(CUISINE_FILTERS.map(f => [f, initialRecipes.filter(r => r.cuisine === f).length])),
   };
@@ -47,7 +52,9 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
       );
     }
 
-    if (activeFilter !== 'All') {
+    if (activeFilter === 'Favorites') {
+      result = result.filter(r => favorites.has(r.recipeId));
+    } else if (activeFilter !== 'All') {
       if (MEAL_FILTERS.includes(activeFilter)) {
         result = result.filter(r => r.mealType?.includes(activeFilter as never));
       } else {
@@ -71,7 +78,7 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
     }
 
     setFilteredRecipes(result);
-  }, [searchQuery, activeFilter, sortBy, initialRecipes]);
+  }, [searchQuery, activeFilter, sortBy, initialRecipes, favorites]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +128,7 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
 
       {/* Filters */}
       <div className="flex justify-center gap-2 px-5 py-6 flex-wrap">
-        {(['All', ...MEAL_FILTERS, ...CUISINE_FILTERS]).map(f => (
+        {(['All', ...(session ? ['Favorites'] : []), ...MEAL_FILTERS, ...CUISINE_FILTERS]).map(f => (
           <button
             key={f}
             onClick={() => handleFilterClick(f)}
@@ -156,7 +163,7 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
 
       {/* Grid */}
       <div className="px-5 lg:px-10 pb-12">
-        <RecipeList recipes={filteredRecipes} />
+        <RecipeList recipes={filteredRecipes} favorites={favorites} onToggleFavorite={toggleFavorite} />
       </div>
 
       {/* Footer */}

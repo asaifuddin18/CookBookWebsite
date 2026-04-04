@@ -7,6 +7,8 @@ import {
   DeleteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
+
+const FAVORITES_TABLE_NAME = process.env.DYNAMODB_FAVORITES_TABLE_NAME || 'cookbook-favorites';
 import { Recipe } from './types';
 
 const client = new DynamoDBClient({
@@ -76,6 +78,40 @@ export async function deleteRecipe(recipeId: string): Promise<void> {
     console.error('Error deleting recipe from DynamoDB:', error);
     throw new Error('Failed to delete recipe from database');
   }
+}
+
+export async function getFavorites(userId: string): Promise<string[]> {
+  const result = await dynamoDb.send(
+    new GetCommand({
+      TableName: FAVORITES_TABLE_NAME,
+      Key: { userId },
+    })
+  );
+  const item = result.Item as { userId: string; recipeIds?: Set<string> } | undefined;
+  if (!item?.recipeIds) return [];
+  return [...item.recipeIds];
+}
+
+export async function addFavorite(userId: string, recipeId: string): Promise<void> {
+  await dynamoDb.send(
+    new UpdateCommand({
+      TableName: FAVORITES_TABLE_NAME,
+      Key: { userId },
+      UpdateExpression: 'ADD recipeIds :id',
+      ExpressionAttributeValues: { ':id': new Set([recipeId]) },
+    })
+  );
+}
+
+export async function removeFavorite(userId: string, recipeId: string): Promise<void> {
+  await dynamoDb.send(
+    new UpdateCommand({
+      TableName: FAVORITES_TABLE_NAME,
+      Key: { userId },
+      UpdateExpression: 'DELETE recipeIds :id',
+      ExpressionAttributeValues: { ':id': new Set([recipeId]) },
+    })
+  );
 }
 
 export async function updateRecipe(
