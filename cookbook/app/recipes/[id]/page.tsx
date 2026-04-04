@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
 import { ArrowLeft, ChefHat } from 'lucide-react';
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
+import ServingSizeScaler from '@/app/components/ServingSizeScaler';
 
 export default async function RecipeDetailPage({
   params,
@@ -134,15 +135,10 @@ export default async function RecipeDetailPage({
 
         {/* Ingredients — left column */}
         <div className="md:w-[38%] md:flex-shrink-0">
-          <h2 className="font-serif text-[20px] text-brown-light font-normal mb-4 pb-2 border-b border-border">Ingredients</h2>
-          <ul>
-            {recipe.ingredients.map((ingredient, index) => (
-              <li key={index} className="flex items-start gap-3 py-2.5 border-b border-dashed border-border last:border-0 text-[14px] text-brown-light">
-                <span className="w-1.5 h-1.5 rounded-full bg-copper-light flex-shrink-0 mt-[7px]" />
-                <span>{ingredient.quantity} {ingredient.unit && `${ingredient.unit} `}{ingredient.name}</span>
-              </li>
-            ))}
-          </ul>
+          <ServingSizeScaler
+            ingredients={recipe.ingredients}
+            defaultServings={recipe.servings || 1}
+          />
         </div>
 
         {/* Instructions — right column */}
