@@ -3,6 +3,31 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ingredient } from '@/lib/types';
+import { ImportedRecipe } from '@/lib/recipeImport';
+
+async function compressImage(file: File): Promise<{ base64: string; mediaType: string }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1024;
+      let { width, height } = img;
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+        else { width = Math.round(width * MAX / height); height = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
+      const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+      resolve({ base64, mediaType: 'image/jpeg' });
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
 
 interface RecipeFormProps {
   recipeId?: string;
@@ -62,6 +87,11 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [fat, setFat] = useState<number | ''>(initialRecipe?.fat ?? '');
   const [estimating, setEstimating] = useState(false);
   const [estimateError, setEstimateError] = useState<string | null>(null);
+  const [importTab, setImportTab] = useState<'photo' | 'url'>('photo');
+  const [importUrl, setImportUrl] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState(false);
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -153,6 +183,66 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
     }
   };
 
+  const applyImport = (data: ImportedRecipe) => {
+    setTitle(data.title || '');
+    setDescription(data.description || '');
+    setIngredients(data.ingredients?.length ? data.ingredients.map(i => ({ name: i.name, quantity: i.quantity, unit: i.unit || '' })) : [{ name: '', quantity: '', unit: '' }]);
+    setInstructions(data.instructions?.length ? data.instructions : ['']);
+    setPrepTime(data.prepTime || '');
+    setCookTime(data.cookTime || '');
+    setServings(data.servings || '');
+    setMealType(data.mealType || []);
+    setDifficulty(data.difficulty || '');
+    setCuisine(data.cuisine || '');
+    setTags(data.tags ? data.tags.join(', ') : '');
+    setImportSuccess(true);
+    setImportError(null);
+  };
+
+  const handleImportPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setImportError(null);
+    setImportSuccess(false);
+    try {
+      const { base64, mediaType } = await compressImage(file);
+      const res = await fetch('/api/import-recipe/photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64, mediaType }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Import failed');
+      applyImport(await res.json());
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Import failed. Try again.');
+    } finally {
+      setImporting(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleImportUrl = async () => {
+    if (!importUrl.trim()) return;
+    setImporting(true);
+    setImportError(null);
+    setImportSuccess(false);
+    try {
+      const res = await fetch('/api/import-recipe/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: importUrl.trim() }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || 'Import failed');
+      applyImport(await res.json());
+      setImportUrl('');
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Import failed. Try again.');
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -209,6 +299,55 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
           {error}
         </div>
       )}
+
+      {/* Import */}
+      <div className="mb-8 p-5 rounded-xl border-[1.5px] border-dashed border-copper-light bg-cream">
+        <h3 className="font-serif text-[18px] text-brown font-normal mb-1">Import recipe</h3>
+        <p className="text-[12px] text-text-light mb-4">Import from a photo or URL — fields will be pre-filled for you to review.</p>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-4 bg-white rounded-lg p-1 w-fit border border-border">
+          {(['photo', 'url'] as const).map(tab => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => { setImportTab(tab); setImportError(null); setImportSuccess(false); }}
+              className={`text-[13px] px-4 py-1.5 rounded-md transition-all font-medium ${importTab === tab ? 'bg-copper text-white' : 'text-text-muted hover:text-brown'}`}
+            >
+              {tab === 'photo' ? '📷 Photo' : '🔗 URL'}
+            </button>
+          ))}
+        </div>
+
+        {importTab === 'photo' ? (
+          <label className={`inline-flex items-center gap-2 cursor-pointer border-[1.5px] border-border hover:border-copper text-brown text-[13px] font-medium px-4 py-2.5 rounded-lg transition-colors bg-white ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
+            {importing ? 'Importing...' : 'Choose photo'}
+            <input type="file" accept="image/*" onChange={handleImportPhoto} className="hidden" disabled={importing} />
+          </label>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              value={importUrl}
+              onChange={e => setImportUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleImportUrl()}
+              placeholder="https://example.com/recipe"
+              disabled={importing}
+              className="flex-1 px-4 py-2.5 border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
+            />
+            <button
+              type="button"
+              onClick={handleImportUrl}
+              disabled={importing || !importUrl.trim()}
+              className="bg-copper hover:bg-copper-dark disabled:opacity-50 text-white text-[13px] font-medium px-5 py-2.5 rounded-lg transition-all"
+            >
+              {importing ? 'Importing...' : 'Import'}
+            </button>
+          </div>
+        )}
+
+        {importError && <p className="text-[12px] text-red-500 mt-3">{importError}</p>}
+        {importSuccess && <p className="text-[12px] text-green-600 mt-3">Recipe imported — review the fields below and make any edits.</p>}
+      </div>
 
       {/* Basic info */}
       <div className="mb-7">
