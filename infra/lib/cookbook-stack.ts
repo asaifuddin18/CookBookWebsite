@@ -58,10 +58,10 @@ export class CookbookStack extends cdk.Stack {
           ],
           resources: [table.tableArn],
         }),
-        // S3 — only PutObject under images/ prefix (for pre-signed upload URLs)
+        // S3 — PutObject and DeleteObject under images/ prefix
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          actions: ['s3:PutObject'],
+          actions: ['s3:PutObject', 's3:DeleteObject'],
           resources: [`${imageBucket.bucketArn}/images/*`],
         }),
       ],

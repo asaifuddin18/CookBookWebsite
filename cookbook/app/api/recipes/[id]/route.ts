@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getRecipe, updateRecipe, deleteRecipe } from '@/lib/dynamodb';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { deleteImage } from '@/lib/s3';
 import { recipeSchema } from '@/lib/validation';
 
 export async function GET(
@@ -96,6 +97,7 @@ export async function DELETE(
     }
 
     await deleteRecipe(id);
+    if (existing.imageUrl) await deleteImage(existing.imageUrl);
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Error deleting recipe:', error);

@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const client = new S3Client({
@@ -26,4 +26,12 @@ export async function getPresignedUploadUrl(
   const imageUrl = `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
 
   return { uploadUrl, imageUrl };
+}
+
+export async function deleteImage(imageUrl: string): Promise<void> {
+  const prefix = `https://${BUCKET}.s3.${REGION}.amazonaws.com/`;
+  if (!imageUrl.startsWith(prefix)) return;
+
+  const key = imageUrl.slice(prefix.length);
+  await client.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
 }
