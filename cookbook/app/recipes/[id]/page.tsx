@@ -4,6 +4,7 @@ import { getRecipe } from '@/lib/dynamodb';
 import { ArrowLeft, ChefHat } from 'lucide-react';
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
 import ServingSizeScaler from '@/app/components/ServingSizeScaler';
+import CopyLinkButton from '@/app/components/CopyLinkButton';
 
 export default async function RecipeDetailPage({
   params,
@@ -86,6 +87,7 @@ export default async function RecipeDetailPage({
             <ChefHat size={14} />
             Edit recipe
           </Link>
+          <CopyLinkButton />
           <DeleteRecipeButton recipeId={recipe.recipeId} />
         </div>
       </div>
