@@ -142,6 +142,40 @@ export default async function RecipeDetailPage({
         </div>
       )}
 
+      {/* Macros */}
+      {(recipe.protein || recipe.carbs || recipe.fat) && (() => {
+        const calories = Math.round((recipe.protein || 0) * 4 + (recipe.carbs || 0) * 4 + (recipe.fat || 0) * 9);
+        return (
+          <div className="mb-10">
+            <h2 className="font-serif text-[16px] text-text-muted font-normal mb-3 uppercase tracking-widest text-[11px]">Nutrition per serving</h2>
+            <div className="flex border border-border rounded-[10px] overflow-hidden">
+              <div className="flex-1 py-4 px-3 text-center border-r border-border">
+                <div className="text-[10px] text-text-light uppercase tracking-widest mb-1">Calories</div>
+                <div className="font-serif text-[18px] text-copper-dark">{calories}</div>
+              </div>
+              {recipe.protein !== undefined && (
+                <div className="flex-1 py-4 px-3 text-center border-r border-border">
+                  <div className="text-[10px] text-text-light uppercase tracking-widest mb-1">Protein</div>
+                  <div className="font-serif text-[18px] text-copper-dark">{recipe.protein}g</div>
+                </div>
+              )}
+              {recipe.carbs !== undefined && (
+                <div className="flex-1 py-4 px-3 text-center border-r border-border">
+                  <div className="text-[10px] text-text-light uppercase tracking-widest mb-1">Carbs</div>
+                  <div className="font-serif text-[18px] text-copper-dark">{recipe.carbs}g</div>
+                </div>
+              )}
+              {recipe.fat !== undefined && (
+                <div className="flex-1 py-4 px-3 text-center">
+                  <div className="text-[10px] text-text-light uppercase tracking-widest mb-1">Fat</div>
+                  <div className="font-serif text-[18px] text-copper-dark">{recipe.fat}g</div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Ingredients + Instructions two-column layout */}
       <div className="flex flex-col md:flex-row gap-10 mb-9">
 

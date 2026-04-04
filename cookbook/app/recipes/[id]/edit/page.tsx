@@ -27,6 +27,9 @@ export default async function EditRecipePage({
     cuisine: recipe.cuisine,
     tags: recipe.tags,
     imageUrl: recipe.imageUrl,
+    protein: recipe.protein,
+    carbs: recipe.carbs,
+    fat: recipe.fat,
   };
 
   return (

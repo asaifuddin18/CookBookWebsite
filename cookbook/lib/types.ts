@@ -21,6 +21,9 @@ export interface Recipe {
   cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
   tags?: string[];
   imageUrl?: string;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
   createdAt: string;
   updatedAt: string;
 }

@@ -20,6 +20,9 @@ export const recipeSchema = z.object({
   cuisine: z.enum(['American', 'Indian', 'Thai', 'Italian', 'Chinese', 'Korean', 'Mexican', 'Japanese', 'Other']).optional(),
   tags: z.array(z.string()).optional(),
   imageUrl: z.string().url().optional(),
+  protein: z.number().min(0).optional(),
+  carbs: z.number().min(0).optional(),
+  fat: z.number().min(0).optional(),
 });
 
 export type RecipeFormData = z.infer<typeof recipeSchema>;

@@ -19,6 +19,9 @@ interface RecipeFormProps {
     cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
     tags?: string[];
     imageUrl?: string;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
   };
 }
 
@@ -54,6 +57,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [imageUrl, setImageUrl] = useState(initialRecipe?.imageUrl || '');
   const [imagePreview, setImagePreview] = useState(initialRecipe?.imageUrl || '');
   const [imageUploading, setImageUploading] = useState(false);
+  const [protein, setProtein] = useState<number | ''>(initialRecipe?.protein ?? '');
+  const [carbs, setCarbs] = useState<number | ''>(initialRecipe?.carbs ?? '');
+  const [fat, setFat] = useState<number | ''>(initialRecipe?.fat ?? '');
 
   const addIngredient = () => {
     setIngredients([...ingredients, { name: '', quantity: '', unit: '' }]);
@@ -138,6 +144,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         cuisine: cuisine || undefined,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(t => t) : undefined,
         imageUrl: imageUrl || undefined,
+        protein: protein !== '' ? protein : undefined,
+        carbs: carbs !== '' ? carbs : undefined,
+        fat: fat !== '' ? fat : undefined,
       };
 
       const url = isEditMode ? `/api/recipes/${recipeId}` : '/api/recipes';
@@ -422,6 +431,51 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
             placeholder="e.g., comfort food, quick, vegetarian"
             className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
           />
+        </div>
+      </div>
+
+      {/* Macros */}
+      <div className="mb-7">
+        <h3 className="font-serif text-[18px] text-brown font-normal mb-1 pb-2 border-b border-border">Nutrition <span className="font-sans text-[13px] text-text-light font-normal">(per serving, optional)</span></h3>
+        {(protein !== '' || carbs !== '' || fat !== '') && (
+          <p className="text-[12px] text-text-light mb-3">
+            Calories: <span className="text-copper-dark font-medium">{Math.round((Number(protein) || 0) * 4 + (Number(carbs) || 0) * 4 + (Number(fat) || 0) * 9)} kcal</span>
+          </p>
+        )}
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-[13px] text-text-muted font-medium mb-1.5">Protein (g)</label>
+            <input
+              type="number"
+              value={protein}
+              onChange={(e) => setProtein(e.target.value ? parseFloat(e.target.value) : '')}
+              min="0"
+              placeholder="0"
+              className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] text-text-muted font-medium mb-1.5">Carbs (g)</label>
+            <input
+              type="number"
+              value={carbs}
+              onChange={(e) => setCarbs(e.target.value ? parseFloat(e.target.value) : '')}
+              min="0"
+              placeholder="0"
+              className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] text-text-muted font-medium mb-1.5">Fat (g)</label>
+            <input
+              type="number"
+              value={fat}
+              onChange={(e) => setFat(e.target.value ? parseFloat(e.target.value) : '')}
+              min="0"
+              placeholder="0"
+              className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
+            />
+          </div>
         </div>
       </div>
 

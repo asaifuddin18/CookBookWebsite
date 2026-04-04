@@ -99,6 +99,19 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
         )}
       </div>
 
+      {/* Macros */}
+      {(recipe.protein || recipe.carbs || recipe.fat) && (
+        <div className="px-[18px] pb-3 flex gap-3">
+          {(() => {
+            const cal = Math.round((recipe.protein || 0) * 4 + (recipe.carbs || 0) * 4 + (recipe.fat || 0) * 9);
+            return <span className="text-[11px] text-copper-dark font-medium">{cal} kcal</span>;
+          })()}
+          {recipe.protein !== undefined && <span className="text-[11px] text-text-light">{recipe.protein}g protein</span>}
+          {recipe.carbs !== undefined && <span className="text-[11px] text-text-light">{recipe.carbs}g carbs</span>}
+          {recipe.fat !== undefined && <span className="text-[11px] text-text-light">{recipe.fat}g fat</span>}
+        </div>
+      )}
+
       {/* Footer */}
       <div className="flex justify-between items-center px-[18px] py-3 border-t border-border">
         <div className="flex items-center gap-2">
