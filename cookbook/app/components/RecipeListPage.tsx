@@ -14,13 +14,25 @@ interface RecipeListPageProps {
 const MEAL_FILTERS = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'];
 const CUISINE_FILTERS = ['American', 'Italian', 'Mexican', 'Indian', 'Japanese', 'Thai', 'Chinese', 'Korean'];
 
+type CalorieFilter = 'under400' | '400-700' | '700plus' | null;
+type MacroFilter = 'high-protein' | 'low-carb' | null;
+type SortBy = 'newest' | 'alphabetical' | 'quickest' | 'calories-asc' | 'calories-desc' | 'most-protein' | 'fewest-carbs' | 'least-fat';
+
+const getCalories = (r: { protein?: number; carbs?: number; fat?: number }) =>
+  Math.round((r.protein || 0) * 4 + (r.carbs || 0) * 4 + (r.fat || 0) * 9);
+
+const hasMacros = (r: { protein?: number; carbs?: number; fat?: number }) =>
+  r.protein !== undefined || r.carbs !== undefined || r.fat !== undefined;
+
 export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) {
   const { data: session } = useSession();
   const { favorites, toggle: toggleFavorite } = useFavorites(session?.user?.email);
   const { searchQuery, setSearchQuery } = useSearch();
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [activeFilter, setActiveFilter] = useState<string>('All');
-  const [sortBy, setSortBy] = useState<'newest' | 'alphabetical' | 'quickest'>('newest');
+  const [calorieFilter, setCalorieFilter] = useState<CalorieFilter>(null);
+  const [macroFilter, setMacroFilter] = useState<MacroFilter>(null);
+  const [sortBy, setSortBy] = useState<SortBy>('newest');
   const [filteredRecipes, setFilteredRecipes] = useState(initialRecipes);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +74,23 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
       }
     }
 
+    if (calorieFilter || macroFilter) {
+      result = result.filter(r => {
+        if (!hasMacros(r)) return false;
+        if (calorieFilter) {
+          const cal = getCalories(r);
+          if (calorieFilter === 'under400' && cal >= 400) return false;
+          if (calorieFilter === '400-700' && (cal < 400 || cal >= 700)) return false;
+          if (calorieFilter === '700plus' && cal < 700) return false;
+        }
+        if (macroFilter) {
+          if (macroFilter === 'high-protein' && (r.protein || 0) < 30) return false;
+          if (macroFilter === 'low-carb' && (r.carbs || 0) > 30) return false;
+        }
+        return true;
+      });
+    }
+
     if (sortBy === 'alphabetical') {
       result = [...result].sort((a, b) => a.title.localeCompare(b.title));
     } else if (sortBy === 'quickest') {
@@ -73,12 +102,47 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
         if (bTime === 0) return -1;
         return aTime - bTime;
       });
+    } else if (sortBy === 'calories-asc') {
+      result = [...result].sort((a, b) => {
+        if (!hasMacros(a) && !hasMacros(b)) return 0;
+        if (!hasMacros(a)) return 1;
+        if (!hasMacros(b)) return -1;
+        return getCalories(a) - getCalories(b);
+      });
+    } else if (sortBy === 'calories-desc') {
+      result = [...result].sort((a, b) => {
+        if (!hasMacros(a) && !hasMacros(b)) return 0;
+        if (!hasMacros(a)) return 1;
+        if (!hasMacros(b)) return -1;
+        return getCalories(b) - getCalories(a);
+      });
+    } else if (sortBy === 'most-protein') {
+      result = [...result].sort((a, b) => {
+        if (!hasMacros(a) && !hasMacros(b)) return 0;
+        if (!hasMacros(a)) return 1;
+        if (!hasMacros(b)) return -1;
+        return (b.protein || 0) - (a.protein || 0);
+      });
+    } else if (sortBy === 'fewest-carbs') {
+      result = [...result].sort((a, b) => {
+        if (!hasMacros(a) && !hasMacros(b)) return 0;
+        if (!hasMacros(a)) return 1;
+        if (!hasMacros(b)) return -1;
+        return (a.carbs || 0) - (b.carbs || 0);
+      });
+    } else if (sortBy === 'least-fat') {
+      result = [...result].sort((a, b) => {
+        if (!hasMacros(a) && !hasMacros(b)) return 0;
+        if (!hasMacros(a)) return 1;
+        if (!hasMacros(b)) return -1;
+        return (a.fat || 0) - (b.fat || 0);
+      });
     } else {
       result = [...result].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     }
 
     setFilteredRecipes(result);
-  }, [searchQuery, activeFilter, sortBy, initialRecipes, favorites]);
+  }, [searchQuery, activeFilter, calorieFilter, macroFilter, sortBy, initialRecipes, favorites]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +190,39 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
         </div>
       </div>
 
+      {/* Nutrition filters — only shown if any recipe has macros */}
+      {initialRecipes.some(hasMacros) && (
+        <div className="flex justify-center items-center gap-2 px-5 pt-5 pb-1 flex-wrap">
+          <span className="text-[11px] text-text-light uppercase tracking-widest mr-1">Calories</span>
+          {([
+            { key: 'under400', label: 'Under 400' },
+            { key: '400-700', label: '400–700' },
+            { key: '700plus', label: '700+' },
+          ] as { key: CalorieFilter; label: string }[]).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setCalorieFilter(calorieFilter === key ? null : key)}
+              className={`text-[12px] px-4 py-1.5 rounded-[24px] border transition-all ${calorieFilter === key ? 'bg-copper text-white border-copper' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+            >
+              {label}
+            </button>
+          ))}
+          <span className="text-[11px] text-text-light uppercase tracking-widest mx-1">Macros</span>
+          {([
+            { key: 'high-protein', label: 'High Protein' },
+            { key: 'low-carb', label: 'Low Carb' },
+          ] as { key: MacroFilter; label: string }[]).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setMacroFilter(macroFilter === key ? null : key)}
+              className={`text-[12px] px-4 py-1.5 rounded-[24px] border transition-all ${macroFilter === key ? 'bg-copper text-white border-copper' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex justify-center gap-2 px-5 py-6 flex-wrap">
         {(['All', ...(session ? ['Favorites'] : []), ...MEAL_FILTERS, ...CUISINE_FILTERS]).map(f => (
@@ -151,13 +248,18 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
         <span className="text-[12px] text-text-light whitespace-nowrap">{filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}</span>
         <select
           value={sortBy}
-          onChange={e => setSortBy(e.target.value as 'newest' | 'alphabetical' | 'quickest')}
+          onChange={e => setSortBy(e.target.value as SortBy)}
           className="text-[12px] text-text-muted border border-border rounded-lg px-2.5 py-1.5 bg-white outline-none focus:border-copper transition-colors appearance-none cursor-pointer"
           style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', paddingRight: '24px' }}
         >
           <option value="newest">Newest</option>
           <option value="alphabetical">A–Z</option>
           <option value="quickest">Quickest</option>
+          <option value="calories-asc">Calories ↑</option>
+          <option value="calories-desc">Calories ↓</option>
+          <option value="most-protein">Most protein</option>
+          <option value="fewest-carbs">Fewest carbs</option>
+          <option value="least-fat">Least fat</option>
         </select>
       </div>
 
