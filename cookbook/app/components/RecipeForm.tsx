@@ -102,7 +102,8 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         body: JSON.stringify({ filename: file.name, contentType: file.type }),
       });
       const { uploadUrl, imageUrl: uploadedUrl } = await res.json();
-      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      const uploadRes = await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!uploadRes.ok) throw new Error(`S3 upload failed: ${uploadRes.status}`);
       setImageUrl(uploadedUrl);
     } catch {
       setError('Image upload failed. Please try again.');
