@@ -29,7 +29,9 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
   const { favorites, toggle: toggleFavorite } = useFavorites(session?.user?.email);
   const { searchQuery, setSearchQuery } = useSearch();
   const [localQuery, setLocalQuery] = useState(searchQuery);
-  const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [activeMeal, setActiveMeal] = useState<string | null>(null);
+  const [activeCuisine, setActiveCuisine] = useState<string | null>(null);
   const [calorieFilter, setCalorieFilter] = useState<CalorieFilter>(null);
   const [macroFilter, setMacroFilter] = useState<MacroFilter>(null);
   const [sortBy, setSortBy] = useState<SortBy>('newest');
@@ -42,6 +44,12 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
     ...Object.fromEntries(MEAL_FILTERS.map(f => [f, initialRecipes.filter(r => r.mealType?.includes(f as never)).length])),
     ...Object.fromEntries(CUISINE_FILTERS.map(f => [f, initialRecipes.filter(r => r.cuisine === f).length])),
   };
+
+  const activeFilterLabel = [
+    favoritesOnly ? 'Favorites' : null,
+    activeMeal,
+    activeCuisine,
+  ].filter(Boolean).join(' · ') || 'All';
 
   useEffect(() => {
     setLocalQuery(searchQuery);
@@ -63,15 +71,9 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
       );
     }
 
-    if (activeFilter === 'Favorites') {
-      result = result.filter(r => favorites.has(r.recipeId));
-    } else if (activeFilter !== 'All') {
-      if (MEAL_FILTERS.includes(activeFilter)) {
-        result = result.filter(r => r.mealType?.includes(activeFilter as never));
-      } else {
-        result = result.filter(r => r.cuisine === activeFilter);
-      }
-    }
+    if (favoritesOnly) result = result.filter(r => favorites.has(r.recipeId));
+    if (activeMeal) result = result.filter(r => r.mealType?.includes(activeMeal as never));
+    if (activeCuisine) result = result.filter(r => r.cuisine === activeCuisine);
 
     if (calorieFilter || macroFilter) {
       result = result.filter(r => {
@@ -141,16 +143,13 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
     }
 
     setFilteredRecipes(result);
-  }, [searchQuery, activeFilter, calorieFilter, macroFilter, sortBy, initialRecipes, favorites]);
+  }, [searchQuery, favoritesOnly, activeMeal, activeCuisine, calorieFilter, macroFilter, sortBy, initialRecipes, favorites]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchQuery(localQuery);
   };
 
-  const handleFilterClick = (filter: string) => {
-    setActiveFilter(filter);
-  };
 
   return (
     <div>
@@ -220,25 +219,55 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
       )}
 
       {/* Filters */}
-      <div className="flex justify-center gap-2 px-5 py-6 flex-wrap">
-        {(['All', ...(session ? ['Favorites'] : []), ...MEAL_FILTERS, ...CUISINE_FILTERS]).map(f => (
-          <button
-            key={f}
-            onClick={() => handleFilterClick(f)}
-            className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all inline-flex items-center gap-1.5 ${activeFilter === f ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
-          >
-            {f}
-            <span className={`text-[11px] ${activeFilter === f ? 'text-cream/70' : 'text-text-light'}`}>
-              {filterCounts[f] ?? 0}
-            </span>
-          </button>
-        ))}
+      <div className="px-5 pt-5 pb-2 space-y-2">
+        {/* Row 1: All + Favorites */}
+        <div className="flex justify-center gap-2">
+          {(['All', ...(session ? ['Favorites'] : [])]).map(f => {
+            const isActive = f === 'Favorites' ? favoritesOnly : !favoritesOnly && f === 'All';
+            return (
+              <button
+                key={f}
+                onClick={() => setFavoritesOnly(f === 'Favorites' ? !favoritesOnly : false)}
+                className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all inline-flex items-center gap-1.5 ${isActive ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+              >
+                {f}
+                <span className={`text-[11px] ${isActive ? 'text-cream/70' : 'text-text-light'}`}>{filterCounts[f] ?? 0}</span>
+              </button>
+            );
+          })}
+        </div>
+        {/* Row 2: Meal types */}
+        <div className="flex justify-center gap-2 flex-wrap">
+          {MEAL_FILTERS.map(f => (
+            <button
+              key={f}
+              onClick={() => setActiveMeal(activeMeal === f ? null : f)}
+              className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all inline-flex items-center gap-1.5 ${activeMeal === f ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+            >
+              {f}
+              <span className={`text-[11px] ${activeMeal === f ? 'text-cream/70' : 'text-text-light'}`}>{filterCounts[f] ?? 0}</span>
+            </button>
+          ))}
+        </div>
+        {/* Row 3: Cuisines */}
+        <div className="flex justify-center gap-2 flex-wrap">
+          {CUISINE_FILTERS.map(f => (
+            <button
+              key={f}
+              onClick={() => setActiveCuisine(activeCuisine === f ? null : f)}
+              className={`text-[13px] px-[18px] py-2 rounded-[24px] border transition-all inline-flex items-center gap-1.5 ${activeCuisine === f ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+            >
+              {f}
+              <span className={`text-[11px] ${activeCuisine === f ? 'text-cream/70' : 'text-text-light'}`}>{filterCounts[f] ?? 0}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Section header */}
       <div className="flex items-center gap-4 px-5 lg:px-10 pb-5">
         <h2 className="font-serif text-[20px] text-brown font-normal whitespace-nowrap">
-          {searchQuery ? `Results for "${searchQuery}"` : activeFilter !== 'All' ? `${activeFilter} recipes` : 'Latest recipes'}
+          {searchQuery ? `Results for "${searchQuery}"` : activeFilterLabel !== 'All' ? `${activeFilterLabel} recipes` : 'Latest recipes'}
         </h2>
         <div className="flex-1 h-px bg-border" />
         <span className="text-[12px] text-text-light whitespace-nowrap">{filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}</span>
