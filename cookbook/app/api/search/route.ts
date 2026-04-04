@@ -45,11 +45,6 @@ export async function GET(request: NextRequest) {
         return true;
       }
 
-      // Search in tags
-      if (recipe.tags && recipe.tags.some(tag => searchTerm.includes(tag.toLocaleLowerCase()))) {
-        return true;
-      }
-
       // Search in Cuisine
       if (recipe.cuisine && searchTerm.includes(recipe.cuisine.toLocaleLowerCase())) {
         return true;

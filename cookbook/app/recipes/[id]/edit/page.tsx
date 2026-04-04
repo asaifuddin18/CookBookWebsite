@@ -25,7 +25,6 @@ export default async function EditRecipePage({
     mealType: recipe.mealType,
     difficulty: recipe.difficulty,
     cuisine: recipe.cuisine,
-    tags: recipe.tags,
     imageUrl: recipe.imageUrl,
     protein: recipe.protein,
     carbs: recipe.carbs,
