@@ -33,6 +33,8 @@ function getCardBg(recipeId: string): string {
   return CARD_BACKGROUNDS[sum % CARD_BACKGROUNDS.length];
 }
 
+const MEAL_ORDER = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'];
+
 const DIFFICULTY_STYLES: Record<string, { bg: string; color: string }> = {
   Easy: { bg: '#E5F0DB', color: '#4A6B2A' },
   Medium: { bg: '#FFF3E0', color: '#B8860B' },
@@ -98,7 +100,7 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
         </div>
         {(recipe.mealType?.length || recipe.cuisine) && (
           <div className="flex flex-wrap gap-1.5 mt-3">
-            {recipe.mealType?.map((type) => (
+            {[...( recipe.mealType || [])].sort((a, b) => MEAL_ORDER.indexOf(a) - MEAL_ORDER.indexOf(b)).map((type) => (
               <span key={type} className="text-[11px] bg-cream-dark text-text-muted px-2.5 py-0.5 rounded-full">{type}</span>
             ))}
             {recipe.cuisine && (
