@@ -424,7 +424,8 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         throw new Error(errorData.error || `Failed to ${isEditMode ? 'update' : 'create'} recipe`);
       }
 
-      const redirectPath = isEditMode ? `/recipes/${recipeId}` : '/recipes';
+      const created = await response.json();
+      const redirectPath = isEditMode ? `/recipes/${recipeId}` : `/recipes/${created.recipeId}`;
       router.push(redirectPath);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'An error occurred';
