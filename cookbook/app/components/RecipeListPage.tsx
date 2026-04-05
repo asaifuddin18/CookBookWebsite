@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { Recipe } from '@/lib/types';
 import RecipeList from './RecipeList';
@@ -8,6 +8,23 @@ import { useSearch } from './SearchProvider';
 import { useFavorites } from '@/lib/useFavorites';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import Toast from './Toast';
+
+function DeletedToast() {
+  const [show, setShow] = useState(false);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (searchParams.get('deleted') === '1') {
+      setShow(true);
+      router.replace(pathname, { scroll: false });
+    }
+  }, [searchParams, router, pathname]);
+
+  if (!show) return null;
+  return <Toast message="Recipe deleted." onDone={() => setShow(false)} />;
+}
 
 interface RecipeListPageProps {
   initialRecipes: Recipe[];
@@ -31,17 +48,6 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
   const { favorites, toggle: toggleFavorite } = useFavorites(session?.user?.email);
   const { searchQuery, setSearchQuery } = useSearch();
   const [localQuery, setLocalQuery] = useState(searchQuery);
-  const [showDeletedToast, setShowDeletedToast] = useState(false);
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (searchParams.get('deleted') === '1') {
-      setShowDeletedToast(true);
-      router.replace(pathname, { scroll: false });
-    }
-  }, [searchParams, router, pathname]);
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [activeMeal, setActiveMeal] = useState<string | null>(null);
   const [activeCuisine, setActiveCuisine] = useState<string | null>(null);
@@ -166,7 +172,7 @@ export default function RecipeListPage({ initialRecipes }: RecipeListPageProps) 
 
   return (
     <div>
-      {showDeletedToast && <Toast message="Recipe deleted." onDone={() => setShowDeletedToast(false)} />}
+      <Suspense><DeletedToast /></Suspense>
       {/* Hero */}
       <div className="relative overflow-hidden text-center px-5 pt-14 pb-10" style={{ background: 'linear-gradient(180deg, var(--color-cream) 0%, var(--color-cream-dark) 100%)' }}>
         <div className="absolute -top-15 -right-15 w-[200px] h-[200px] rounded-full" style={{ background: 'rgba(200,149,108,0.06)' }} />
