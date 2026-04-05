@@ -19,7 +19,8 @@ export interface Recipe {
   servings?: number;
   mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
-  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
+  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Middle Eastern' | 'Other';
+  overnight?: boolean;
   imageUrl?: string;
   protein?: number;
   carbs?: number;

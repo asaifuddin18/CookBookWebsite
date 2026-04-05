@@ -47,7 +47,8 @@ interface RecipeFormProps {
     servings?: number;
     mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
     difficulty?: 'Easy' | 'Medium' | 'Hard';
-    cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
+    cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Middle Eastern' | 'Other';
+    overnight?: boolean;
     imageUrl?: string;
     protein?: number;
     carbs?: number;
@@ -142,9 +143,10 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | ''>(
     initialRecipe?.difficulty || ''
   );
-  const [cuisine, setCuisine] = useState<'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other' | ''>(
+  const [cuisine, setCuisine] = useState<'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Middle Eastern' | 'Other' | ''>(
     initialRecipe?.cuisine || ''
   );
+  const [overnight, setOvernight] = useState(initialRecipe?.overnight || false);
   const [imageUrl, setImageUrl] = useState(initialRecipe?.imageUrl || '');
   const [imagePreview, setImagePreview] = useState(initialRecipe?.imageUrl || '');
   const [imageUploading, setImageUploading] = useState(false);
@@ -383,7 +385,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
         mealType: mealType.length > 0 ? mealType : undefined,
         difficulty: difficulty || undefined,
         cuisine: cuisine || undefined,
-
+        overnight: overnight || undefined,
         imageUrl: imageUrl || undefined,
         protein: protein !== '' ? protein : undefined,
         carbs: carbs !== '' ? carbs : undefined,
@@ -681,7 +683,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
             <label className="block text-[13px] text-text-muted font-medium mb-1.5">Cuisine</label>
             <select
               value={cuisine}
-              onChange={(e) => setCuisine(e.target.value as 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other' | '')}
+              onChange={(e) => setCuisine(e.target.value as 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Middle Eastern' | 'Other' | '')}
               className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors appearance-none"
               style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A6E62' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: '36px' }}
             >
@@ -694,6 +696,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               <option value="Korean">Korean</option>
               <option value="Mexican">Mexican</option>
               <option value="Japanese">Japanese</option>
+              <option value="Middle Eastern">Middle Eastern</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -718,6 +721,15 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
               {type}
             </button>
           ))}
+        </div>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setOvernight(o => !o)}
+            className={`text-[13px] px-[18px] py-2 rounded-[24px] border-[1.5px] transition-all ${overnight ? 'bg-brown text-cream border-brown' : 'border-border text-text-muted hover:border-copper hover:text-copper'}`}
+          >
+            🌙 Overnight
+          </button>
         </div>
       </div>
 

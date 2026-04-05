@@ -10,7 +10,7 @@ export interface ImportedRecipe {
   servings?: number;
   mealType?: Array<'Breakfast' | 'Lunch' | 'Dinner' | 'Dessert' | 'Snack'>;
   difficulty?: 'Easy' | 'Medium' | 'Hard';
-  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Other';
+  cuisine?: 'American' | 'Indian' | 'Thai' | 'Italian' | 'Chinese' | 'Korean' | 'Mexican' | 'Japanese' | 'Middle Eastern' | 'Other';
 }
 
 const bedrock = new BedrockRuntimeClient({
@@ -34,7 +34,7 @@ The JSON must follow this exact structure:
   "servings": number (optional),
   "mealType": array containing any of "Breakfast","Lunch","Dinner","Dessert","Snack" (optional),
   "difficulty": "Easy" or "Medium" or "Hard" (optional),
-  "cuisine": one of "American","Indian","Thai","Italian","Chinese","Korean","Mexican","Japanese","Other" (optional)
+  "cuisine": one of "American","Indian","Thai","Italian","Chinese","Korean","Mexican","Japanese","Middle Eastern","Other" (optional)
 }
 
 For ingredients, split quantity and unit clearly. For example "2 cups flour" → name: "flour", quantity: "2", unit: "cups".

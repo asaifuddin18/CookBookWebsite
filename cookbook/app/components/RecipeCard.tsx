@@ -69,11 +69,18 @@ export default function RecipeCard({ recipe, isFavorited, onToggleFavorite }: Re
             {emoji}
           </div>
         )}
-        {diffStyle && (
-          <span className="absolute top-3 left-3 text-[11px] font-medium px-3 py-1 rounded" style={{ background: diffStyle.bg, color: diffStyle.color, letterSpacing: '0.5px' }}>
-            {recipe.difficulty}
-          </span>
-        )}
+        <div className="absolute top-3 left-3 flex gap-1.5">
+          {diffStyle && (
+            <span className="text-[11px] font-medium px-3 py-1 rounded" style={{ background: diffStyle.bg, color: diffStyle.color, letterSpacing: '0.5px' }}>
+              {recipe.difficulty}
+            </span>
+          )}
+          {recipe.overnight && (
+            <span className="text-[11px] font-medium px-3 py-1 rounded" style={{ background: '#1E1B2E', color: '#E8D8FF', letterSpacing: '0.5px' }}>
+              🌙 Overnight
+            </span>
+          )}
+        </div>
         <FavoriteButton
           recipeId={recipe.recipeId}
           isFavorited={isFavorited}

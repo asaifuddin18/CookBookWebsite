@@ -12,7 +12,7 @@ interface RecipeListPageProps {
 }
 
 const MEAL_FILTERS = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'];
-const CUISINE_FILTERS = ['American', 'Italian', 'Mexican', 'Indian', 'Japanese', 'Thai', 'Chinese', 'Korean'];
+const CUISINE_FILTERS = ['American', 'Italian', 'Mexican', 'Indian', 'Japanese', 'Thai', 'Chinese', 'Korean', 'Middle Eastern'];
 
 type CalorieFilter = 'under400' | '400-700' | '700plus' | null;
 type MacroFilter = 'high-protein' | 'low-carb' | null;
