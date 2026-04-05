@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
+
+export const dynamic = 'force-dynamic';
 import { ArrowLeft, ChefHat } from 'lucide-react';
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
 import ServingSizeScaler from '@/app/components/ServingSizeScaler';

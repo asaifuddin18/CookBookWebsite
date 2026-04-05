@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
+
+export const dynamic = 'force-dynamic';
 import RecipeForm from '@/app/components/RecipeForm';
 import { ArrowLeft } from 'lucide-react';
 

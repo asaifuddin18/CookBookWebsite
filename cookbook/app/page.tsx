@@ -2,6 +2,8 @@ import { getAllRecipes } from '@/lib/dynamodb';
 import RecipeListPage from './components/RecipeListPage';
 import { Recipe } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   let recipes: Recipe[] = [];
 
