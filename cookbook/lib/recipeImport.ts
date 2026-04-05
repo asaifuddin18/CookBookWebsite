@@ -1,5 +1,5 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import { getAwsCredentials } from './awsCredentials';
+import { getAwsClientConfig } from './awsCredentials';
 
 export interface ImportedRecipe {
   title: string;
@@ -16,7 +16,7 @@ export interface ImportedRecipe {
 
 const bedrock = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || 'us-east-1',
-  credentials: getAwsCredentials(),
+  ...getAwsClientConfig(),
 });
 
 const SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract recipe information and return ONLY a JSON object with no explanation or markdown.

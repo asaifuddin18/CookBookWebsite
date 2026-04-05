@@ -30,6 +30,9 @@ Thumbs.db
 .env.local
 .env.*.local
 
+# 1Password plugin config
+.op/
+
 # Lock files (optional)
 package-lock.json
 yarn.lock

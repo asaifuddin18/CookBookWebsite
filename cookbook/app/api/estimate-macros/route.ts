@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import { getAwsCredentials } from '@/lib/awsCredentials';
+import { getAwsClientConfig } from '@/lib/awsCredentials';
 import { Ingredient } from '@/lib/types';
 
 const bedrock = new BedrockRuntimeClient({
   region: process.env.AWS_REGION || 'us-east-1',
-  credentials: getAwsCredentials(),
+  ...getAwsClientConfig(),
 });
 
 export async function POST(req: NextRequest) {

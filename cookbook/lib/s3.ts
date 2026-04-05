@@ -1,10 +1,10 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { getAwsCredentials } from './awsCredentials';
+import { getAwsClientConfig } from './awsCredentials';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
-  credentials: getAwsCredentials(),
+  ...getAwsClientConfig(),
 });
 
 const BUCKET = process.env.S3_BUCKET_NAME || '';
