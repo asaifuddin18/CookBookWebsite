@@ -11,9 +11,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const recipe = await getRecipe(id);
   if (!recipe) return { title: 'Recipe not found' };
+  const description = recipe.description || `A recipe by ${recipe.author}`;
   return {
-    title: `${recipe.title} — Saifuddin's Kitchen`,
-    description: recipe.description || `A recipe by ${recipe.author}`,
+    title: recipe.title,
+    description,
+    openGraph: {
+      title: `${recipe.title} — Saifuddin's Kitchen`,
+      description,
+      ...(recipe.imageUrl ? { images: [{ url: recipe.imageUrl }] } : {}),
+      type: 'article',
+    },
   };
 }
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';

@@ -31,6 +31,11 @@ export const metadata: Metadata = {
     template: "%s — Saifuddin's Kitchen",
   },
   description: "Our family's favorite recipes, all in one place.",
+  openGraph: {
+    title: "Saifuddin's Kitchen",
+    description: "Our family's favorite recipes, all in one place.",
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
