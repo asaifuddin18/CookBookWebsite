@@ -138,14 +138,14 @@ export class CookbookStack extends cdk.Stack {
     // --- Vercel OIDC ---
     const vercelProvider = new iam.OpenIdConnectProvider(this, 'VercelOIDCProvider', {
       url: 'https://oidc.vercel.com/asaifuddin18s-projects',
-      clientIds: ['sts.amazonaws.com'],
+      clientIds: ['https://vercel.com/asaifuddin18s-projects'],
     });
 
     const vercelRole = new iam.Role(this, 'VercelAppRole', {
       roleName: 'cookbook-vercel-app',
       assumedBy: new iam.WebIdentityPrincipal(vercelProvider.openIdConnectProviderArn, {
         StringEquals: {
-          'oidc.vercel.com/asaifuddin18s-projects:aud': 'sts.amazonaws.com',
+          'oidc.vercel.com/asaifuddin18s-projects:aud': 'https://vercel.com/asaifuddin18s-projects',
         },
       }),
     });
