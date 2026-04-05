@@ -21,7 +21,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   if (!recipe) {
     return new ImageResponse(
       <div style={{ width: 1200, height: 630, background: '#F5ECD7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontSize: 48, color: '#A07048' }}>Recipe not found</span>
+        <span style={{ fontSize: 56, color: '#A07048' }}>Recipe not found</span>
       </div>
     );
   }
@@ -38,57 +38,48 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     <div style={{ width: 1200, height: 630, display: 'flex', fontFamily: 'Georgia, serif', background: '#F5ECD7' }}>
 
       {/* Left — image or emoji */}
-      <div style={{ width: 480, height: 630, background: cardBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative' }}>
+      <div style={{ width: 460, height: 630, background: cardBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {recipe.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={recipe.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <span style={{ fontSize: 120 }}>{emoji}</span>
+          <span style={{ fontSize: 160 }}>{emoji}</span>
         )}
       </div>
 
       {/* Right — content */}
-      <div style={{ flex: 1, padding: '52px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ flex: 1, padding: '48px 52px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
 
         {/* Top */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {/* Pills */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
             {recipe.cuisine && (
-              <span style={{ background: '#C8956C', color: 'white', fontSize: 13, padding: '4px 14px', borderRadius: 20 }}>{recipe.cuisine}</span>
+              <span style={{ background: '#C8956C', color: 'white', fontSize: 18, padding: '6px 18px', borderRadius: 24 }}>{recipe.cuisine}</span>
             )}
             {sortedMealTypes.map(type => (
-              <span key={type} style={{ background: '#E8D8C4', color: '#7A6E62', fontSize: 13, padding: '4px 14px', borderRadius: 20 }}>{type}</span>
+              <span key={type} style={{ background: '#E8D8C4', color: '#7A6E62', fontSize: 18, padding: '6px 18px', borderRadius: 24 }}>{type}</span>
             ))}
             {recipe.overnight && (
-              <span style={{ background: '#1E1B2E', color: '#E8D8FF', fontSize: 13, padding: '4px 14px', borderRadius: 20 }}>🌙 Overnight</span>
+              <span style={{ background: '#1E1B2E', color: '#E8D8FF', fontSize: 18, padding: '6px 18px', borderRadius: 24 }}>🌙 Overnight</span>
             )}
           </div>
 
           {/* Title */}
-          <div style={{ fontSize: recipe.title.length > 30 ? 44 : 52, color: '#3D2B1F', lineHeight: 1.15, marginBottom: 16 }}>
+          <div style={{ fontSize: recipe.title.length > 30 ? 52 : 62, color: '#3D2B1F', lineHeight: 1.15, marginBottom: 18 }}>
             {recipe.title}
           </div>
 
           {/* Description */}
           {recipe.description && (
-            <div style={{ fontSize: 18, color: '#7A6E62', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            <div style={{ fontSize: 22, color: '#7A6E62', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
               {recipe.description}
             </div>
           )}
         </div>
 
         {/* Bottom */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Stats */}
-          <div style={{ display: 'flex', gap: 24 }}>
-            {recipe.servings && (
-              <span style={{ fontSize: 16, color: '#7A6E62' }}>🍽 {recipe.servings} servings</span>
-            )}
-            {recipe.difficulty && (
-              <span style={{ fontSize: 16, color: '#7A6E62' }}>📊 {recipe.difficulty}</span>
-            )}
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
           {/* Macros + Time pills */}
           {(() => {
@@ -103,31 +94,43 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             ];
             if (!pills.length) return null;
             return (
-              <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 14 }}>
                 {pills.map(({ label, value }) => (
-                  <div key={label} style={{ background: '#EEE0CC', borderRadius: 10, padding: '8px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                    <span style={{ fontSize: 11, color: '#A07048', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</span>
-                    <span style={{ fontSize: 18, color: '#7A5C3A' }}>{value}</span>
+                  <div key={label} style={{ background: '#EEE0CC', borderRadius: 12, padding: '10px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 13, color: '#A07048', textTransform: 'uppercase', letterSpacing: 1 }}>{label}</span>
+                    <span style={{ fontSize: 24, color: '#7A5C3A' }}>{value}</span>
                   </div>
                 ))}
               </div>
             );
           })()}
 
+          {/* Stats */}
+          {(recipe.servings || recipe.difficulty) && (
+            <div style={{ display: 'flex', gap: 28 }}>
+              {recipe.servings && (
+                <span style={{ fontSize: 20, color: '#7A6E62' }}>🍽 {recipe.servings} servings</span>
+              )}
+              {recipe.difficulty && (
+                <span style={{ fontSize: 20, color: '#7A6E62' }}>📊 {recipe.difficulty}</span>
+              )}
+            </div>
+          )}
+
           {/* Author + branding */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               {recipe.authorImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={recipe.authorImage} alt="" style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #D4C0A8' }} />
+                <img src={recipe.authorImage} alt="" style={{ width: 42, height: 42, borderRadius: '50%', border: '2px solid #D4C0A8' }} />
               ) : (
-                <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#E8D8C4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#A07048', border: '2px solid #D4C0A8' }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#E8D8C4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#A07048', border: '2px solid #D4C0A8' }}>
                   {recipe.author.charAt(0).toUpperCase()}
                 </div>
               )}
-              <span style={{ fontSize: 16, color: '#A07048' }}>{recipe.author}</span>
+              <span style={{ fontSize: 20, color: '#A07048' }}>{recipe.author}</span>
             </div>
-            <span style={{ fontSize: 20, color: '#C8956C', letterSpacing: -0.5 }}>
+            <span style={{ fontSize: 26, color: '#C8956C', letterSpacing: -0.5 }}>
               Saifuddin&apos;s Kitchen
             </span>
           </div>
