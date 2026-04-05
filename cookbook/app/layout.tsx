@@ -26,7 +26,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Saifuddin Family Cookbook",
+  title: {
+    default: "Saifuddin's Kitchen",
+    template: "%s — Saifuddin's Kitchen",
+  },
   description: "Our family's favorite recipes, all in one place.",
 };
 

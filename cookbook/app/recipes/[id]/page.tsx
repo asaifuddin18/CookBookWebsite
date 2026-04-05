@@ -3,7 +3,19 @@ import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
 
 export const dynamic = 'force-dynamic';
+
+import type { Metadata } from 'next';
 import { ArrowLeft, ChefHat } from 'lucide-react';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const recipe = await getRecipe(id);
+  if (!recipe) return { title: 'Recipe not found' };
+  return {
+    title: `${recipe.title} — Saifuddin's Kitchen`,
+    description: recipe.description || `A recipe by ${recipe.author}`,
+  };
+}
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
 import ServingSizeScaler from '@/app/components/ServingSizeScaler';
 import CopyLinkButton from '@/app/components/CopyLinkButton';
