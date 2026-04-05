@@ -12,7 +12,7 @@ function SignInContent() {
     <div className="min-h-[70vh] flex items-center justify-center px-5">
       <div className="text-center max-w-[360px]">
         <span className="inline-block bg-brown text-cream text-[10px] tracking-[2.5px] uppercase font-medium px-3.5 py-1.5 rounded-sm mb-5">
-          Community Cookbook
+          Saifuddin&apos;s Kitchen
         </span>
         <h1 className="font-serif text-[32px] text-brown leading-tight mb-3">
           Sign in to continue
