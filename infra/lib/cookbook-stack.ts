@@ -103,7 +103,7 @@ export class CookbookStack extends cdk.Stack {
       userName: appUser.userName,
     });
 
-    // IAM user for CDK deployments
+    // IAM user for CDK deployments (local dev via 1Password)
     const cdkUser = new iam.User(this, 'CookbookCdkUser', {
       userName: 'cookbook-cdk',
     });
@@ -113,6 +113,72 @@ export class CookbookStack extends cdk.Stack {
     const cdkAccessKey = new iam.CfnAccessKey(this, 'CookbookCdkAccessKey', {
       userName: cdkUser.userName,
     });
+
+    // --- GitHub Actions OIDC ---
+    const githubProvider = new iam.OpenIdConnectProvider(this, 'GitHubOIDCProvider', {
+      url: 'https://token.actions.githubusercontent.com',
+      clientIds: ['sts.amazonaws.com'],
+    });
+
+    const githubActionsRole = new iam.Role(this, 'GitHubActionsDeployRole', {
+      roleName: 'cookbook-github-actions-deploy',
+      assumedBy: new iam.WebIdentityPrincipal(githubProvider.openIdConnectProviderArn, {
+        StringEquals: {
+          'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+        },
+        StringLike: {
+          'token.actions.githubusercontent.com:sub': 'repo:asaifuddin18/CookBookWebsite:*',
+        },
+      }),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'),
+      ],
+    });
+
+    // --- Vercel OIDC ---
+    const vercelProvider = new iam.OpenIdConnectProvider(this, 'VercelOIDCProvider', {
+      url: 'https://oidc.vercel.com/asaifuddin18s-projects',
+      clientIds: ['sts.amazonaws.com'],
+    });
+
+    const vercelRole = new iam.Role(this, 'VercelAppRole', {
+      roleName: 'cookbook-vercel-app',
+      assumedBy: new iam.WebIdentityPrincipal(vercelProvider.openIdConnectProviderArn, {
+        StringEquals: {
+          'oidc.vercel.com/asaifuddin18s-projects:aud': 'sts.amazonaws.com',
+        },
+      }),
+    });
+
+    vercelRole.attachInlinePolicy(new iam.Policy(this, 'VercelAppPolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem', 'dynamodb:DeleteItem', 'dynamodb:Scan'],
+          resources: [table.tableArn],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['dynamodb:GetItem', 'dynamodb:UpdateItem'],
+          resources: [favoritesTable.tableArn],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['bedrock:InvokeModel'],
+          resources: [
+            'arn:aws:bedrock:us-east-1:664658497880:inference-profile/us.anthropic.claude-sonnet-4-6',
+            'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-6',
+            'arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-sonnet-4-6',
+            'arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-sonnet-4-6',
+          ],
+        }),
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['s3:PutObject', 's3:DeleteObject'],
+          resources: [`${imageBucket.bucketArn}/images/*`],
+        }),
+      ],
+    }));
 
     // Outputs
     new cdk.CfnOutput(this, 'TableName', {
@@ -153,6 +219,16 @@ export class CookbookStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'CdkSecretAccessKey', {
       value: cdkAccessKey.attrSecretAccessKey,
       description: 'CDK_AWS_SECRET_ACCESS_KEY',
+    });
+
+    new cdk.CfnOutput(this, 'VercelRoleArn', {
+      value: vercelRole.roleArn,
+      description: 'AWS_ROLE_ARN — set this in Vercel environment variables',
+    });
+
+    new cdk.CfnOutput(this, 'GitHubActionsRoleArn', {
+      value: githubActionsRole.roleArn,
+      description: 'Role ARN used by GitHub Actions to deploy CDK',
     });
   }
 }
