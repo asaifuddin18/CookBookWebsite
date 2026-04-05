@@ -14,7 +14,7 @@ export default function DeleteRecipeButton({ recipeId }: { recipeId: string }) {
     try {
       const res = await fetch(`/api/recipes/${recipeId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      router.push('/');
+      router.push('/?deleted=1');
       router.refresh();
     } catch {
       setLoading(false);

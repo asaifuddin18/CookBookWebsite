@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 import DeleteRecipeButton from '@/app/components/DeleteRecipeButton';
 import ServingSizeScaler from '@/app/components/ServingSizeScaler';
 import CopyLinkButton from '@/app/components/CopyLinkButton';
+import SavedToast from '@/app/components/SavedToast';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
@@ -70,6 +71,7 @@ export default async function RecipeDetailPage({
 
   return (
     <div className="max-w-[800px] mx-auto px-5 lg:px-10 py-8 pb-16">
+      <SavedToast />
       {/* Back link */}
       <Link href="/" className="inline-flex items-center gap-1.5 text-[13px] text-text-muted hover:text-copper transition-colors mb-6">
         <ArrowLeft size={14} />

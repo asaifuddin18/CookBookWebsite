@@ -425,7 +425,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       }
 
       const created = await response.json();
-      const redirectPath = isEditMode ? `/recipes/${recipeId}` : `/recipes/${created.recipeId}`;
+      const redirectPath = isEditMode ? `/recipes/${recipeId}?saved=1` : `/recipes/${created.recipeId}?saved=1`;
       router.push(redirectPath);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'An error occurred';
