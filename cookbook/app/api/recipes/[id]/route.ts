@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { deleteImage } from '@/lib/s3';
 import { recipeSchema } from '@/lib/validation';
+import { revalidatePath } from 'next/cache';
 
 export async function GET(
   request: NextRequest,
@@ -66,6 +67,8 @@ export async function PUT(
     const { author, authorEmail, authorImage, ...updateData } = validationResult.data as typeof validationResult.data & { author?: string; authorEmail?: string; authorImage?: string };
     void author; void authorEmail; void authorImage;
     const updatedRecipe = await updateRecipe(id, updateData);
+    revalidatePath('/');
+    revalidatePath(`/recipes/${id}`);
     return NextResponse.json(updatedRecipe, { status: 200 });
   } catch (error) {
     console.error('Error updating recipe:', error);
@@ -98,6 +101,8 @@ export async function DELETE(
 
     await deleteRecipe(id);
     if (existing.imageUrl) await deleteImage(existing.imageUrl);
+    revalidatePath('/');
+    revalidatePath(`/recipes/${id}`);
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Error deleting recipe:', error);

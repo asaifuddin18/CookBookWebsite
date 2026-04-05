@@ -5,6 +5,7 @@ import { recipeSchema } from '@/lib/validation';
 import { Recipe } from '@/lib/types';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
     };
 
     await putRecipe(recipe);
+    revalidatePath('/');
 
     return NextResponse.json(recipe, { status: 201 });
   } catch (error) {

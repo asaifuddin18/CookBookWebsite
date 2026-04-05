@@ -2,7 +2,7 @@ import { getAllRecipes } from '@/lib/dynamodb';
 import RecipeListPage from './components/RecipeListPage';
 import { Recipe } from '@/lib/types';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300; // fallback: rebuild every 5 min
 
 export default async function Home() {
   let recipes: Recipe[] = [];

@@ -2,9 +2,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getRecipe } from '@/lib/dynamodb';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300; // fallback: rebuild every 5 min
 
+import { getAllRecipes } from '@/lib/dynamodb';
 import type { Metadata } from 'next';
+
+export async function generateStaticParams() {
+  const recipes = await getAllRecipes();
+  return recipes.map((r) => ({ id: r.recipeId }));
+}
 import { ArrowLeft, ChefHat } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
