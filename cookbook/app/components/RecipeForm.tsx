@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ingredient } from '@/lib/types';
 import { ImportedRecipe } from '@/lib/recipeImport';
@@ -118,7 +118,8 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const router = useRouter();
   const isEditMode = !!recipeId;
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
 
   const [title, setTitle] = useState(initialRecipe?.title || '');
   const [description, setDescription] = useState(initialRecipe?.description || '');
@@ -371,14 +372,29 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setErrors([]);
+
+    const validIngredientsList = ingredients.filter(ing => ing.isHeader ? ing.name.trim() : ing.name && ing.quantity);
+    const validInstructions = instructions.filter(inst => inst.trim());
+
+    const validationErrors: string[] = [];
+    if (!title.trim()) validationErrors.push('Title is required');
+    if (validIngredientsList.length === 0) validationErrors.push('At least one ingredient (with name and quantity) is required');
+    if (validInstructions.length === 0) validationErrors.push('At least one instruction step is required');
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      setLoading(false);
+      setTimeout(() => errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+      return;
+    }
 
     try {
       const recipeData = {
         title,
         description: description || undefined,
-        ingredients: ingredients.filter(ing => ing.isHeader ? ing.name.trim() : ing.name && ing.quantity),
-        instructions: instructions.filter(inst => inst.trim()),
+        ingredients: validIngredientsList,
+        instructions: validInstructions,
         prepTime: prepTime || undefined,
         cookTime: cookTime || undefined,
         servings: servings || undefined,
@@ -411,7 +427,9 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
       const redirectPath = isEditMode ? `/recipes/${recipeId}` : '/recipes';
       router.push(redirectPath);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const msg = err instanceof Error ? err.message : 'An error occurred';
+      setErrors([msg]);
+      setTimeout(() => errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
     } finally {
       setLoading(false);
     }
@@ -419,9 +437,12 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-0">
-      {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[14px]">
-          {error}
+      {errors.length > 0 && (
+        <div ref={errorRef} className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[14px]">
+          <p className="font-medium mb-1">Please fix the following before saving:</p>
+          <ul className="list-disc list-inside space-y-0.5">
+            {errors.map((e, i) => <li key={i}>{e}</li>)}
+          </ul>
         </div>
       )}
 
@@ -520,14 +541,18 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
             </label>
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
+              onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setErrors(prev => prev.filter(err => !err.toLowerCase().includes('title'))); }}
               placeholder="e.g., Grandma's chocolate chip cookies"
-              className="w-full px-4 py-[11px] border-[1.5px] border-border rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light"
+              className={`w-full px-4 py-[11px] border-[1.5px] rounded-lg text-[14px] text-brown bg-white outline-none focus:border-copper transition-colors placeholder:text-text-light ${errors.some(e => e.toLowerCase().includes('title')) ? 'border-red-400' : 'border-border'}`}
             />
+            {errors.some(e => e.toLowerCase().includes('title')) && (
+              <p className="mt-1 text-[12px] text-red-500">Title is required</p>
+            )}
           </div>
           <div>
-            <label className="block text-[13px] text-text-muted font-medium mb-1.5">Description</label>
+            <label className="block text-[13px] text-text-muted font-medium mb-1.5">
+              Description <span className="text-text-light font-normal">(optional)</span>
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -541,7 +566,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
 
       {/* Photo */}
       <div className="mb-7">
-        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Photo</h3>
+        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Photo <span className="font-sans text-[13px] text-text-light font-normal">(optional)</span></h3>
         <div className="flex gap-4 items-start">
           {imagePreview ? (
             <div className="relative w-[120px] h-[100px] rounded-lg overflow-hidden flex-shrink-0 border border-border">
@@ -628,7 +653,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
 
       {/* Details */}
       <div className="mb-7">
-        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Details</h3>
+        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Details <span className="font-sans text-[13px] text-text-light font-normal">(optional)</span></h3>
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div>
             <label className="block text-[13px] text-text-muted font-medium mb-1.5">Prep time (min)</label>
@@ -705,7 +730,7 @@ export default function RecipeForm({ recipeId, initialRecipe }: RecipeFormProps 
 
       {/* Meal type */}
       <div className="mb-7">
-        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Meal type</h3>
+        <h3 className="font-serif text-[18px] text-brown font-normal mb-4 pb-2 border-b border-border">Meal type <span className="font-sans text-[13px] text-text-light font-normal">(optional)</span></h3>
         <div className="flex flex-wrap gap-2">
           {(['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack'] as const).map((type) => (
             <button

@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { SearchProvider } from "./components/SearchProvider";
 import Providers from "./components/Providers";
+import NextTopLoader from "nextjs-toploader";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -62,6 +63,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${playfair.variable} ${sourceSans.variable} ${geistMono.variable} antialiased`}>
+        <NextTopLoader color="#C8956C" shadow={false} showSpinner={false} />
         <Providers>
           <ThemeProvider>
             <SearchProvider>
