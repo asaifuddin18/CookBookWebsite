@@ -34,6 +34,8 @@ Thumbs.db
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+# Allow infra lock file for GitHub Actions
+!infra/package-lock.json
 
 # IDEs
 .vscode/
