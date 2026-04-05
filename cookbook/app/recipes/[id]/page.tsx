@@ -18,7 +18,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     openGraph: {
       title: `${recipe.title} — Saifuddin's Kitchen`,
       description,
-      ...(recipe.imageUrl ? { images: [{ url: recipe.imageUrl }] } : {}),
       type: 'article',
     },
   };
